@@ -126,6 +126,30 @@
 - Dateiauswahl-UI für Layoutpfad
 - Import/Export/„Speichern unter“
 
+## 2026-03-28 – Block 4: Manuelles Layout öffnen/speichern + neues Layout
+### Ausgangslage
+- Auto-Load beim Start funktionierte, aber es gab noch keine Benutzerführung für manuelles Öffnen/Speichern.
+- Es war nicht möglich, ein neues leeres Layout zu erzeugen.
+
+### Durchgeführte Änderungen
+- `LayoutSessionService` ergänzt:
+  - `CreateNewLayout()` erzeugt ein leeres Default-`LayoutDocument` und setzt Status
+  - `OpenLayoutAsync()` öffnet eine JSON-Datei via `FilePicker` und lädt sie über `LayoutFileService`
+  - `SaveLayoutAsync()` speichert das aktuelle Layout (direkt in `LastLayoutFilePath` oder minimal nach AppData `layouts/`)
+  - nach Öffnen/Speichern wird `LastLayoutFilePath` aktualisiert und `appsettings.json` gespeichert
+- UI ergänzt:
+  - `HomePage` und `LayoutDesignerPage` zeigen Buttons „Neues Layout“, „Layout öffnen“, „Layout speichern“
+  - Anzeige von Layoutname, Layoutpfad und Statusmeldung
+
+### Ergebnis
+- Manuelles Öffnen/Speichern funktioniert ohne Layout-Designer.
+- App-Zustand (`AppSessionState`) wird nach Neu/Öffnen/Speichern konsistent aktualisiert.
+- `LastLayoutFilePath` wird nach Öffnen/Speichern persistiert und kann beim nächsten Start wieder für Auto-Load verwendet werden.
+
+### Offene Punkte für den nächsten Block
+- Echter Save-Picker / „Speichern unter“ (optional)
+- Layout-Designer (Bearbeitung) beginnen
+
 ## 2026-03-28 – Block 1b: CameraProfile und erster Remote-Commit
 ### Ausgangslage
 - Lokale Projektbasis vollständig und buildfähig, aber noch nie ins Remote-Repository committed

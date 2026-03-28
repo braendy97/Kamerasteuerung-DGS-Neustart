@@ -17,6 +17,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<SettingsFileService>();
         builder.Services.AddSingleton<LayoutFileService>();
         builder.Services.AddSingleton<AppStartupService>();
+        builder.Services.AddSingleton<LayoutSessionService>();
 
         builder.Services.AddSingleton<HomePage>();
         builder.Services.AddSingleton<LayoutDesignerPage>();

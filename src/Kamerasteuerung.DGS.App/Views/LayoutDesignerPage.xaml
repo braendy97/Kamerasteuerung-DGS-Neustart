@@ -8,6 +8,22 @@
         <VerticalStackLayout Padding="20" Spacing="16">
             <Label Text="Layout-Designer" FontSize="24" FontAttributes="Bold" />
             <Label Text="Dieser Platzhalter ist die Startbasis für den freien Designer." />
+
+            <Frame Padding="12" BorderColor="#CCCCCC">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Aktuelles Layout" FontAttributes="Bold" />
+                    <Label x:Name="LayoutNameLabel" Text="Kein Layout geladen" />
+                    <Label x:Name="LayoutPathLabel" Text="" FontSize="12" TextColor="Gray" />
+                    <Label x:Name="StatusLabel" Text="" FontSize="12" TextColor="Gray" />
+
+                    <HorizontalStackLayout Spacing="10">
+                        <Button Text="Neues Layout" Clicked="OnNewLayoutClicked" />
+                        <Button Text="Layout öffnen" Clicked="OnOpenLayoutClicked" />
+                        <Button Text="Layout speichern" Clicked="OnSaveLayoutClicked" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Frame>
+
             <Label Text="Geplante nächste Schritte:" FontAttributes="Bold" />
             <Label Text="• freie Fläche mit skalierbarer Größe" />
             <Label Text="• Kamera zuerst wählen, dann Plätze setzen" />

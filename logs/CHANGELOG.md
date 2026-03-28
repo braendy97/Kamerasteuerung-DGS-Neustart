@@ -15,6 +15,11 @@
 - Minimaler App-Zustand (`AppSessionState`) für Settings/Layout/Status
 - Startseite zeigt Lade-/Fehlerstatus sowie Layoutname sichtbar an
 
+## [0.6.0] - 2026-03-28
+### Hinzugefügt
+- Manuelle Layout-Dateiverwaltung in der UI: Neues Layout / Öffnen / Speichern
+- Nach Öffnen/Speichern wird `LastLayoutFilePath` aktualisiert und in `appsettings.json` persistiert
+
 ## [0.3.0] - 2026-03-28
 ### Hinzugefügt
 - `Models/CameraProfile.cs` – Kamera-Konfigurationsmodell mit Name, Host, Port, PresetStart, PresetEnd, SupportsTracking, CameraType

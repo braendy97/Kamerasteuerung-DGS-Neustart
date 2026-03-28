@@ -14,6 +14,13 @@
                     <Label Text="Startstatus" FontAttributes="Bold" />
                     <Label x:Name="StartupStatusLabel" Text="App wird initialisiert ..." />
                     <Label x:Name="LayoutNameLabel" Text="Kein Layout geladen" />
+                    <Label x:Name="LayoutPathLabel" Text="" FontSize="12" TextColor="Gray" />
+
+                    <HorizontalStackLayout Spacing="10">
+                        <Button Text="Neues Layout" Clicked="OnNewLayoutClicked" />
+                        <Button Text="Layout öffnen" Clicked="OnOpenLayoutClicked" />
+                        <Button Text="Layout speichern" Clicked="OnSaveLayoutClicked" />
+                    </HorizontalStackLayout>
                 </VerticalStackLayout>
             </Frame>
 
