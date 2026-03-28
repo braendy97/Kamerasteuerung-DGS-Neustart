@@ -70,10 +70,70 @@ public partial class LayoutDesignerPage : ContentPage
         RefreshBlocksList(scale);
         RefreshSeatsSummary();
         RefreshPresetSummary();
+        RefreshAssignmentOrder();
         RefreshSelectedBlockCameraType();
+        RefreshSelectedBlockPresetPriority();
         RefreshSeatsList();
         RefreshSelectedSeat();
         RenderBlocksAndSeats(scale);
+    }
+
+    private void RefreshAssignmentOrder()
+    {
+        if (_state.Layout is null)
+        {
+            AssignmentOrderLabel.Text = string.Empty;
+            return;
+        }
+
+        static bool IsValidUserPreset(int p) => p >= Services.LayoutSessionService.UserPresetStart && p <= Services.LayoutSessionService.UserPresetEnd;
+
+        var blocks = _state.Layout.Blocks
+            .OrderBy(b => b.PresetPriority)
+            .ThenBy(b => b.Y)
+            .ThenBy(b => b.X)
+            .ThenBy(b => b.Name)
+            .Select(b =>
+            {
+                var presets = _state.Layout.Seats
+                    .Where(s => s.BlockId == b.Id && IsValidUserPreset(s.PresetNumber))
+                    .Select(s => s.PresetNumber)
+                    .Order()
+                    .ToList();
+
+                var range = presets.Count == 0 ? "–" : $"{presets.First()}–{presets.Last()}";
+                var cam = b.CameraType switch
+                {
+                    Core.Models.CameraType.AudienceV600 => "Zuschauer",
+                    Core.Models.CameraType.StageSmtavV60XL => "Bühne",
+                    _ => "(keine)"
+                };
+
+                return $"{b.PresetPriority}: {b.Name} [{cam}] ({range})";
+            })
+            .ToList();
+
+        AssignmentOrderLabel.Text = blocks.Count == 0
+            ? "(keine Blöcke)"
+            : string.Join("\n", blocks);
+    }
+
+    private void RefreshSelectedBlockPresetPriority()
+    {
+        if (_state.Layout is null || string.IsNullOrWhiteSpace(_state.SelectedBlockId))
+        {
+            SelectedBlockPresetPriorityLabel.Text = "Kein Block ausgewählt";
+            return;
+        }
+
+        var block = _state.Layout.Blocks.FirstOrDefault(b => b.Id == _state.SelectedBlockId);
+        if (block is null)
+        {
+            SelectedBlockPresetPriorityLabel.Text = "Block nicht gefunden";
+            return;
+        }
+
+        SelectedBlockPresetPriorityLabel.Text = $"Aktuell: {block.PresetPriority} (niedriger = früher)";
     }
 
     private sealed class SeatListItem
@@ -269,13 +329,32 @@ public partial class LayoutDesignerPage : ContentPage
                     Core.Models.CameraType.StageSmtavV60XL => $"{b.Name} (Bühne)",
                     _ => b.Name
                 },
-                Details = $"Pos: {b.X:0},{b.Y:0} | Größe: {b.Width:0}×{b.Height:0}",
+                Details = BuildBlockDetails(b),
                 SelectedMarker = b.Id == selectedId ? "Ausgewählt" : string.Empty
             })
             .ToList();
 
         BlocksCollectionView.ItemsSource = items;
         BlocksCollectionView.SelectedItem = items.FirstOrDefault(i => i.Id == selectedId);
+    }
+
+    private string BuildBlockDetails(LayoutBlock b)
+    {
+        if (_state.Layout is null)
+        {
+            return $"Pos: {b.X:0},{b.Y:0} | Größe: {b.Width:0}×{b.Height:0}";
+        }
+
+        static bool IsValidUserPreset(int p) => p >= Services.LayoutSessionService.UserPresetStart && p <= Services.LayoutSessionService.UserPresetEnd;
+
+        var presets = _state.Layout.Seats
+            .Where(s => s.BlockId == b.Id && IsValidUserPreset(s.PresetNumber))
+            .Select(s => s.PresetNumber)
+            .Order()
+            .ToList();
+
+        var range = presets.Count == 0 ? "–" : $"{presets.First()}–{presets.Last()}";
+        return $"Prio: {b.PresetPriority} | Presets: {range} | Pos: {b.X:0},{b.Y:0} | Größe: {b.Width:0}×{b.Height:0}";
     }
 
     private void RenderBlocksAndSeats(double scale)
@@ -460,6 +539,19 @@ public partial class LayoutDesignerPage : ContentPage
         }
 
         _layoutSession.SetSeatPreset(_state.SelectedSeatId, preset);
+        Refresh();
+    }
+
+    private void OnSetBlockPresetPriorityClicked(object sender, EventArgs e)
+    {
+        if (!int.TryParse(BlockPresetPriorityEntry.Text, out var prio))
+        {
+            _state.StatusMessage = "Preset-Priorität ungültig";
+            Refresh();
+            return;
+        }
+
+        _layoutSession.SetSelectedBlockPresetPriority(prio);
         Refresh();
     }
 

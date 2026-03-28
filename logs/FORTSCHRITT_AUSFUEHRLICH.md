@@ -326,6 +326,36 @@
 - Optional: bessere Konfliktanzeige (z. B. genaue Dubletten-Nummern / betroffene Sitze).
 - Optional: Preset-Startwert als Default automatisch vorschlagen (z. B. erster freier Preset).
 
+## 2026-03-28 – Preset-Vergabe 3: Block-Priorität + sichtbare Vergabereihenfolge
+### Ausgangslage
+- Zentrale Neuvergabe war stabil, aber fachlich nicht steuerbar in der Reihenfolge (nur Y/X/Name).
+- Manuelle Block-/Sitz-Korrekturen waren vorhanden und sollten erhalten bleiben.
+
+### Fachliche Regeln (dieser Block)
+- Nutzerbereich 10–210, `0` = nicht zugewiesen.
+- Keine automatische Konfliktbereinigung.
+- Prioritätsänderung allein löst keine Neuvergabe aus; Nutzer stößt bewusst „Presets neu berechnen“ an.
+
+### Durchgeführte Änderungen
+- Core-Modell erweitert:
+  - `LayoutBlock.PresetPriority` ergänzt (Default 100; niedrigere Zahl = früher)
+- Zentrale Preset-Neuvergabe angepasst (`LayoutSessionService.ReassignUserPresets()`):
+  - Blocksortierung: `PresetPriority` → Y → X → Name
+  - Sitzsortierung im Block unverändert stabil
+- UI erweitert (`LayoutDesignerPage`):
+  - Anzeige der effektiven Vergabereihenfolge (Liste nach tatsächlicher Sortierung)
+  - Blockliste zeigt zusätzlich Priorität und Preset-Range (First–Last gültig)
+  - Eingabe + Button um `PresetPriority` am ausgewählten Block zu setzen (ohne automatische Neuvergabe)
+
+### Ergebnis
+- Nutzer kann die fachliche Reihenfolge der Preset-Neuvergabe über Block-Prioritäten steuern.
+- Die effektive Reihenfolge ist im Designer sichtbar.
+- Manuelle Block-/Sitz-Korrekturpfade bleiben erhalten und werden nicht heimlich überschrieben.
+
+### Offene Punkte für den nächsten Block
+- Optional: Preset-Neuvergabe pro Kameraart getrennt (falls später fachlich nötig), ohne Regel-Explosion.
+- Optional: UI-Verbesserung (z. B. „früh/spät“ Hinweistext abhängig von Prioritätswert).
+
 ## 2026-03-28 – Block 1b: CameraProfile und erster Remote-Commit
 ### Ausgangslage
 - Lokale Projektbasis vollständig und buildfähig, aber noch nie ins Remote-Repository committed

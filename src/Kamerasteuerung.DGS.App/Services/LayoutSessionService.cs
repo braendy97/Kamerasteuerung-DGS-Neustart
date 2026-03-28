@@ -20,6 +20,32 @@ public sealed class LayoutSessionService
         _settingsFileService = settingsFileService;
     }
 
+    public bool SetSelectedBlockPresetPriority(int presetPriority)
+    {
+        if (_state.Layout is null)
+        {
+            _state.StatusMessage = "Kein Layout geladen";
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(_state.SelectedBlockId))
+        {
+            _state.StatusMessage = "Kein Block ausgewählt";
+            return false;
+        }
+
+        var block = _state.Layout.Blocks.FirstOrDefault(b => b.Id == _state.SelectedBlockId);
+        if (block is null)
+        {
+            _state.StatusMessage = "Block nicht gefunden";
+            return false;
+        }
+
+        block.PresetPriority = presetPriority;
+        _state.StatusMessage = $"Preset-Priorität gesetzt: {presetPriority} (niedriger = früher)";
+        return true;
+    }
+
     public bool SetSelectedBlockPresetsFromStart(int startPreset)
     {
         if (_state.Layout is null)
@@ -201,7 +227,8 @@ public sealed class LayoutSessionService
         }
 
         var orderedBlocks = _state.Layout.Blocks
-            .OrderBy(b => b.Y)
+            .OrderBy(b => b.PresetPriority)
+            .ThenBy(b => b.Y)
             .ThenBy(b => b.X)
             .ThenBy(b => b.Name)
             .ToList();

@@ -72,6 +72,14 @@
   - manuelles Setzen eines einzelnen Sitz-Presets (akzeptiert 0 oder 10–210; keine automatische Konfliktbereinigung)
 - Minimaler Sitzauswahl-State in `AppSessionState` (`SelectedSeatId`)
 
+## [0.13.0] - 2026-03-28
+### Hinzugefügt
+- Block-Priorität für Preset-Neuvergabe:
+  - `LayoutBlock.PresetPriority` (int, Default 100; niedrigere Zahl = früher)
+  - globale Preset-Neuvergabe sortiert Blöcke primär nach `PresetPriority` (Fallback: Y/X/Name)
+- Designer: effektive Vergabereihenfolge sichtbar (Liste + Blockdetails inkl. Prio und Preset-Range)
+- Setzen der Priorität am ausgewählten Block (ohne automatische Neuvergabe)
+
 ## [0.3.0] - 2026-03-28
 ### Hinzugefügt
 - `Models/CameraProfile.cs` – Kamera-Konfigurationsmodell mit Name, Host, Port, PresetStart, PresetEnd, SupportsTracking, CameraType
