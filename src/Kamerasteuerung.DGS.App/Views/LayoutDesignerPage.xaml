@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="Kamerasteuerung.DGS.App.Views.LayoutDesignerPage"
+    Title="Layout">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="16">
+            <Label Text="Layout-Designer" FontSize="24" FontAttributes="Bold" />
+            <Label Text="Dieser Platzhalter ist die Startbasis für den freien Designer." />
+            <Label Text="Geplante nächste Schritte:" FontAttributes="Bold" />
+            <Label Text="• freie Fläche mit skalierbarer Größe" />
+            <Label Text="• Kamera zuerst wählen, dann Plätze setzen" />
+            <Label Text="• Plätze zu Blöcken gruppieren" />
+            <Label Text="• Blöcke drehen" />
+            <Label Text="• Layout als Datei speichern und laden" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

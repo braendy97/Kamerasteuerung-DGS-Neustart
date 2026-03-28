@@ -1,0 +1,88 @@
+{
+  "documentVersion": 1,
+  "name": "Beispiel Saal A",
+  "lastUpdatedUtc": "2026-03-28T20:00:00Z",
+  "canvas": {
+    "width": 1400,
+    "height": 900,
+    "zoom": 1.0
+  },
+  "cameras": [
+    {
+      "id": "cam-zuschauer",
+      "name": "Zuschauerkamera",
+      "deviceType": "V600",
+      "host": "192.168.1.50",
+      "port": 5678
+    },
+    {
+      "id": "cam-buehne",
+      "name": "B\u00fchnenkamera",
+      "deviceType": "SMTAVV60XL",
+      "host": "192.168.1.51",
+      "port": 5678
+    }
+  ],
+  "blocks": [
+    {
+      "id": "block-a",
+      "name": "Block A",
+      "x": 250,
+      "y": 240,
+      "width": 330,
+      "height": 220,
+      "rotationDegrees": 0
+    },
+    {
+      "id": "block-b",
+      "name": "Block B",
+      "x": 620,
+      "y": 220,
+      "width": 330,
+      "height": 220,
+      "rotationDegrees": 45
+    }
+  ],
+  "seats": [
+    {
+      "id": "seat-001",
+      "label": "A1",
+      "cameraId": "cam-zuschauer",
+      "presetNumber": 10,
+      "x": 280,
+      "y": 270,
+      "blockId": "block-a",
+      "assignedParticipantId": null
+    },
+    {
+      "id": "seat-002",
+      "label": "A2",
+      "cameraId": "cam-zuschauer",
+      "presetNumber": 11,
+      "x": 330,
+      "y": 270,
+      "blockId": "block-a",
+      "assignedParticipantId": "p-anna"
+    },
+    {
+      "id": "seat-100",
+      "label": "B\u00fchne Mitte",
+      "cameraId": "cam-buehne",
+      "presetNumber": 180,
+      "x": 1100,
+      "y": 180,
+      "blockId": null,
+      "assignedParticipantId": null
+    }
+  ],
+  "participants": [
+    {
+      "id": "p-anna",
+      "displayName": "Anna Beispiel"
+    },
+    {
+      "id": "p-bernd",
+      "displayName": "Bernd Beispiel"
+    }
+  ]
+}

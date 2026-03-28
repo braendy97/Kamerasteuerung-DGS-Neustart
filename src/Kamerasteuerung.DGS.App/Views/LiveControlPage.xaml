@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="Kamerasteuerung.DGS.App.Views.LiveControlPage"
+    Title="Live-Steuerung">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="16">
+            <Label Text="Live-Steuerung" FontSize="24" FontAttributes="Bold" />
+            <Label Text="Hier wird später das gespeicherte Layout für den Meetingbetrieb angezeigt." />
+            <Label Text="Geplante Funktionen:" FontAttributes="Bold" />
+            <Label Text="• Plätze anklickbar für Preset-Aufruf" />
+            <Label Text="• Kamera 1 / Kamera 2 als flexible Bereiche" />
+            <Label Text="• Fokus auf schnelle Bedienung im Meeting" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="Kamerasteuerung.DGS.App.Views.ParticipantsPage"
+    Title="Teilnehmer">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="16">
+            <Label Text="Teilnehmerliste" FontSize="24" FontAttributes="Bold" />
+            <Label Text="Hier wird später die Teilnehmerverwaltung angezeigt." />
+            <Label Text="Geplante Funktionen:" FontAttributes="Bold" />
+            <Label Text="• Namen hinzufügen, ändern, löschen" />
+            <Label Text="• Alphabetische Sortierung" />
+            <Label Text="• Drag &amp; Drop zwischen Liste und Sitzplätzen" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -1,5 +1,19 @@
 # Änderungslog
 
+## [0.3.0] - 2026-03-28
+### Hinzugefügt
+- `Models/CameraProfile.cs` – Kamera-Konfigurationsmodell mit Name, Host, Port, PresetStart, PresetEnd, SupportsTracking, CameraType
+
+### Geändert
+- `LayoutDocument.cs` – referenziert jetzt `CameraProfile` statt `CameraDefinition`
+
+### Entfernt
+- `Models/CameraDefinition.cs` – durch `Models/CameraProfile.cs` ersetzt
+- veraltete Root-Duplikate (`Arbeitsplan.md`, `CHANGELOG.md`, `FORTSCHRITT_AUSFUEHRLICH.md`)
+
+### Sonstiges
+- Erster vollständiger Commit mit gesamter Projektbasis ins Remote-Repository
+
 ## [0.2.0] - 2026-03-28
 ### Hinzugefügt
 - `Models/CameraType.cs` (Enum: AudienceV600, StageSmtavV60XL)

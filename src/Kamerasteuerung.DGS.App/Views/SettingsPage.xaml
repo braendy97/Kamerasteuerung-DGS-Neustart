@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="Kamerasteuerung.DGS.App.Views.SettingsPage"
+    Title="Einstellungen">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+            <Label Text="Einstellungen" FontSize="24" FontAttributes="Bold" />
+
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Layout-Dateipfad" FontAttributes="Bold" />
+                <Entry Placeholder="Pfad zur Layout-Datei (*.dgslayout.json)" IsReadOnly="false" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Zuschauerkamera – V600" FontAttributes="Bold" />
+                <Entry Placeholder="Host (z. B. 192.168.1.100)" IsReadOnly="false" />
+                <Entry Placeholder="Port (z. B. 5678)" Keyboard="Numeric" IsReadOnly="false" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Bühnenkamera – SMTAV V60XL" FontAttributes="Bold" />
+                <Entry Placeholder="Host (z. B. 192.168.1.101)" IsReadOnly="false" />
+                <Entry Placeholder="Port (z. B. 5678)" Keyboard="Numeric" IsReadOnly="false" />
+            </VerticalStackLayout>
+
+            <Label Text="Hinweis: Die Einstellungen werden in einer späteren Phase gespeichert."
+                   FontSize="12" TextColor="Gray" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

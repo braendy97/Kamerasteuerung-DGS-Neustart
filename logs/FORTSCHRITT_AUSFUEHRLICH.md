@@ -63,3 +63,29 @@
 - Datei-Services an App-Lebenszyklus anbinden
 - SettingsPage mit echter Persistenz verdrahten
 - VISCA-Kommunikation als erste echte Runtime-Implementierung ergänzen
+
+## 2026-03-28 – Block 1b: CameraProfile und erster Remote-Commit
+### Ausgangslage
+- Lokale Projektbasis vollständig und buildfähig, aber noch nie ins Remote-Repository committed
+- `Models/CameraProfile.cs` fehlte als explizit gefordertes Kamera-Konfigurationsmodell
+- `CameraDefinition.cs` hatte keine Preset-Bereiche und kein SupportsTracking
+- Veraltete Root-Duplikate der Dokumentationsdateien vorhanden
+
+### Durchgeführte Änderungen
+- `Models/CameraProfile.cs` mit Name, Host, Port, PresetStart, PresetEnd, SupportsTracking, CameraType angelegt
+- `CameraDefinition.cs` entfernt, `LayoutDocument` auf `CameraProfile` umgestellt
+- Root-Duplikate entfernt
+- Gesamte Projektbasis erstmals ins Remote-Repository committed
+
+### Ergebnis
+- Build erfolgreich (CLI + Visual Studio, 0 Fehler, 0 Warnungen)
+- Alle angeforderten Models vorhanden: CameraType, CameraProfile, LayoutDocument, LayoutBlock, LayoutSeat, ParticipantEntry, AppSettings
+- 5-Tab-Navigation mit Platzhalterseiten komplett
+- SettingsPage mit Eingabefeldern für Layout-Pfad und Kameraverbindungen
+- Remote-Repository auf aktuellem Stand
+
+### Offene Punkte für den nächsten Block
+- Layout-Designer technisch konkret beginnen
+- Datei-Services an App-Lebenszyklus anbinden
+- SettingsPage mit echter Persistenz verdrahten
+- VISCA-Kommunikation als erste echte Runtime-Implementierung ergänzen

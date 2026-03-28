@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="Kamerasteuerung.DGS.App.Views.HomePage"
+    Title="Start">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="16">
+            <Label Text="Kamerasteuerung DGS" FontSize="24" FontAttributes="Bold" />
+            <Label Text="Neustart-Projekt mit freiem Layout-Designer statt starrer Buttonmatrix." />
+            <Label Text="Kernideen:" FontAttributes="Bold" />
+            <Label Text="• Layout-Datei frei speicherbar und wieder ladbar" />
+            <Label Text="• MAUI als erster UI-Client" />
+            <Label Text="• Shared Core für Kamera-, Preset- und Dateilogik" />
+            <Label Text="• getrennte Kamera-Profile für V600 und SMTAV V60XL" />
+            <Label Text="• späterer Ausbau für Teilnehmer-Drag-&amp;-Drop" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
