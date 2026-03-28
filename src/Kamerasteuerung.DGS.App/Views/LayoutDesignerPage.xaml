@@ -47,6 +47,19 @@
 
                     <Label x:Name="SeatsSummaryLabel" Text="" FontSize="12" TextColor="Gray" />
 
+                    <Frame Padding="10" BorderColor="#DDDDDD">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Kamera-Zuordnung (ausgewählter Block)" FontAttributes="Bold" />
+                            <Label x:Name="SelectedBlockCameraTypeLabel" Text="" FontSize="12" TextColor="Gray" />
+                            <HorizontalStackLayout Spacing="10">
+                                <Button Text="Zuschauerkamera (V600)" Clicked="OnSetAudienceCameraClicked" />
+                                <Button Text="Bühnenkamera (SMTAV V60XL)" Clicked="OnSetStageCameraClicked" />
+                            </HorizontalStackLayout>
+                            <Label Text="Hinweis: Presets werden später aus Block+Sitzdaten abgeleitet (Nutzerbereich 10–210)."
+                                   FontSize="12" TextColor="Gray" />
+                        </VerticalStackLayout>
+                    </Frame>
+
                     <CollectionView x:Name="BlocksCollectionView" SelectionMode="Single" SelectionChanged="OnBlockSelectionChanged">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>

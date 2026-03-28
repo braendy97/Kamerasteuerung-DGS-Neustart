@@ -222,6 +222,40 @@
 - Sitz-Preset-/Kamerazuordnung (später)
 - Teilnehmerzuordnung (später)
 
+## 2026-03-28 – Block 8: Kameraart pro Block (Bühne vs. Zuschauer) + Preset-Vorbereitung
+### Ausgangslage
+- Layout-Datei, Blöcke und Sitze waren vorhanden und im Designer sichtbar.
+- Es gab jedoch noch keine fachliche Zuordnung zur Kamerawelt (Bühne/Zuschauer) und keine Preset-Vorbereitung.
+
+### Fachliche Regeln (dieser Block)
+- Keine VISCA-Kommunikation.
+- Kein Senden von Presets.
+- Kameraart nur auf Block-Ebene (Sitze leiten daraus fachlich ab).
+- Nutzen-Presetbereich bleibt 10–210.
+
+### Durchgeführte Änderungen
+- Core-Modelle erweitert:
+  - `LayoutBlock`: `CameraType?` ergänzt (nullable → nicht zugeordneter Block ist erlaubt)
+  - `LayoutSeat`: vorhandenes `PresetNumber` wird nun beim Generieren befüllt (keine neuen Kamera-Felder je Sitz)
+- `LayoutSessionService` erweitert:
+  - `SetSelectedBlockCameraType(CameraType)` setzt die Kameraart am ausgewählten Block und schreibt eine Statusmeldung
+  - Sitzgenerierung setzt `PresetNumber` fortlaufend ab 10; Werte > 210 werden als 0 markiert
+- `LayoutDesignerPage` erweitert:
+  - UI für Kamera-Zuordnung am ausgewählten Block (Buttons „Zuschauerkamera (V600)“ / „Bühnenkamera (SMTAV V60XL)“)
+  - Anzeige des aktuell zugeordneten Kameratyps
+  - visuelle Trennung: Blöcke werden je Kameraart dezent unterschiedlich dargestellt (Label-Zusatz + Hintergrundfarbe)
+
+### Ergebnis
+- Ein Block kann im Designer einer Kameraart zugeordnet werden.
+- Sitze können fachlich die Kamera ihres Blocks nutzen (ohne zusätzliche Sitz-Felder).
+- Bühne vs. Zuschauer ist im Layout sichtbar unterscheidbar.
+- Presetbereich 10–210 ist im Datenmodell/Seat-Generate als Vorbereitung berücksichtigt (noch ohne Kamera-Senden).
+
+### Offene Punkte für den nächsten Block
+- Presetvergabe später fachlich robust machen (Konflikte/Neugenerierung/„Speichern unter“/Mehrgeräte).
+- optional: Sitz-Labels/Preset-Nummern sparsam in der UI sichtbar machen.
+- VISCA-Kommunikationslayer und Live-Steuerung weiterhin getrennt, später ergänzen.
+
 ## 2026-03-28 – Block 1b: CameraProfile und erster Remote-Commit
 ### Ausgangslage
 - Lokale Projektbasis vollständig und buildfähig, aber noch nie ins Remote-Repository committed

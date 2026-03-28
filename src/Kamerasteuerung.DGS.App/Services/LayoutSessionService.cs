@@ -56,6 +56,9 @@ public sealed class LayoutSessionService
         var seatCount = rows * cols;
         var startOrder = _state.Layout.Seats.Count + 1;
 
+        const int presetStart = 10;
+        const int presetEnd = 210;
+
         var created = 0;
         for (var r = 0; r < rows; r++)
         {
@@ -65,6 +68,12 @@ public sealed class LayoutSessionService
                 var x = block.X + padding + c * (seatSize + gap);
                 var y = block.Y + padding + r * (seatSize + gap);
 
+                var preset = presetStart + created - 1;
+                if (preset > presetEnd)
+                {
+                    preset = 0;
+                }
+
                 _state.Layout.Seats.Add(new LayoutSeat
                 {
                     BlockId = block.Id,
@@ -73,12 +82,41 @@ public sealed class LayoutSessionService
                     Y = y,
                     Width = seatSize,
                     Height = seatSize,
-                    SortOrder = startOrder + created - 1
+                    SortOrder = startOrder + created - 1,
+                    PresetNumber = preset
                 });
             }
         }
 
         _state.StatusMessage = $"Sitze erzeugt: {seatCount}";
+        return true;
+    }
+
+    public bool SetSelectedBlockCameraType(CameraType cameraType)
+    {
+        if (_state.Layout is null)
+        {
+            _state.StatusMessage = "Kein Layout geladen";
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(_state.SelectedBlockId))
+        {
+            _state.StatusMessage = "Kein Block ausgewählt";
+            return false;
+        }
+
+        var block = _state.Layout.Blocks.FirstOrDefault(b => b.Id == _state.SelectedBlockId);
+        if (block is null)
+        {
+            _state.StatusMessage = "Block nicht gefunden";
+            return false;
+        }
+
+        block.CameraType = cameraType;
+        _state.StatusMessage = cameraType == CameraType.AudienceV600
+            ? "Block zugeordnet: Zuschauerkamera (V600)"
+            : "Block zugeordnet: Bühnenkamera (SMTAV V60XL)";
         return true;
     }
 

@@ -1,3 +1,5 @@
+using Kamerasteuerung.DGS.Core.Models;
+
 namespace Kamerasteuerung.DGS.App.Views;
 
 public partial class LayoutDesignerPage : ContentPage
@@ -65,7 +67,31 @@ public partial class LayoutDesignerPage : ContentPage
 
         RefreshBlocksList(scale);
         RefreshSeatsSummary();
+        RefreshSelectedBlockCameraType();
         RenderBlocksAndSeats(scale);
+    }
+
+    private void RefreshSelectedBlockCameraType()
+    {
+        if (_state.Layout is null || string.IsNullOrWhiteSpace(_state.SelectedBlockId))
+        {
+            SelectedBlockCameraTypeLabel.Text = "Kein Block ausgewählt";
+            return;
+        }
+
+        var block = _state.Layout.Blocks.FirstOrDefault(b => b.Id == _state.SelectedBlockId);
+        if (block is null)
+        {
+            SelectedBlockCameraTypeLabel.Text = "Block nicht gefunden";
+            return;
+        }
+
+        SelectedBlockCameraTypeLabel.Text = block.CameraType switch
+        {
+            Core.Models.CameraType.AudienceV600 => "Aktuell: Zuschauerkamera (V600)",
+            Core.Models.CameraType.StageSmtavV60XL => "Aktuell: Bühnenkamera (SMTAV V60XL)",
+            _ => "Aktuell: (keine Kameraart zugeordnet)"
+        };
     }
 
     private void RefreshSeatsSummary()
@@ -108,7 +134,12 @@ public partial class LayoutDesignerPage : ContentPage
             .Select(b => new BlockListItem
             {
                 Id = b.Id,
-                Name = b.Name,
+                Name = b.CameraType switch
+                {
+                    Core.Models.CameraType.AudienceV600 => $"{b.Name} (Zuschauer)",
+                    Core.Models.CameraType.StageSmtavV60XL => $"{b.Name} (Bühne)",
+                    _ => b.Name
+                },
                 Details = $"Pos: {b.X:0},{b.Y:0} | Größe: {b.Width:0}×{b.Height:0}",
                 SelectedMarker = b.Id == selectedId ? "Ausgewählt" : string.Empty
             })
@@ -131,14 +162,26 @@ public partial class LayoutDesignerPage : ContentPage
 
         foreach (var block in _state.Layout.Blocks)
         {
+            var background = block.CameraType switch
+            {
+                Core.Models.CameraType.StageSmtavV60XL => Color.FromArgb("#CCF3E5F5"),
+                Core.Models.CameraType.AudienceV600 => Color.FromArgb("#CCE8F5E9"),
+                _ => Color.FromArgb("#CCFFFFFF")
+            };
+
             var border = new Border
             {
                 Stroke = block.Id == selectedId ? Colors.Red : Colors.DarkSlateGray,
                 StrokeThickness = block.Id == selectedId ? 3 : 1,
-                BackgroundColor = Color.FromArgb("#CCFFFFFF"),
+                BackgroundColor = background,
                 Content = new Label
                 {
-                    Text = block.Name,
+                    Text = block.CameraType switch
+                    {
+                        Core.Models.CameraType.AudienceV600 => $"{block.Name}\n(Zuschauer)",
+                        Core.Models.CameraType.StageSmtavV60XL => $"{block.Name}\n(Bühne)",
+                        _ => block.Name
+                    },
                     FontSize = 12,
                     HorizontalTextAlignment = TextAlignment.Center,
                     VerticalTextAlignment = TextAlignment.Center,
@@ -189,6 +232,18 @@ public partial class LayoutDesignerPage : ContentPage
     private void OnNewLayoutClicked(object sender, EventArgs e)
     {
         _layoutSession.CreateNewLayout();
+        Refresh();
+    }
+
+    private void OnSetAudienceCameraClicked(object sender, EventArgs e)
+    {
+        _layoutSession.SetSelectedBlockCameraType(Core.Models.CameraType.AudienceV600);
+        Refresh();
+    }
+
+    private void OnSetStageCameraClicked(object sender, EventArgs e)
+    {
+        _layoutSession.SetSelectedBlockCameraType(Core.Models.CameraType.StageSmtavV60XL);
         Refresh();
     }
 

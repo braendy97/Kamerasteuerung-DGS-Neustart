@@ -42,6 +42,15 @@
   - Sitze werden im Arbeitsfeld innerhalb der Blockfläche sichtbar angezeigt
   - Sitzanzahl: ausgewählter Block + Gesamt
 
+## [0.10.0] - 2026-03-28
+### Hinzugefügt
+- Block-Kameraart im Layout-Designer:
+  - `LayoutBlock.CameraType` (nullable) zur fachlichen Unterscheidung Bühne vs. Zuschauer
+  - UI-Buttons zur Zuordnung am ausgewählten Block (Zuschauerkamera V600 / Bühnenkamera SMTAV V60XL)
+  - visuelle Kennzeichnung von Blöcken nach Kameraart (Label + dezente Hintergrundfarbe)
+- Preset-Vorbereitung beim Sitzgenerieren:
+  - `PresetNumber` wird beim Generieren fortlaufend im Nutzerbereich 10–210 gesetzt (außerhalb: 0)
+
 ## [0.3.0] - 2026-03-28
 ### Hinzugefügt
 - `Models/CameraProfile.cs` – Kamera-Konfigurationsmodell mit Name, Host, Port, PresetStart, PresetEnd, SupportsTracking, CameraType
