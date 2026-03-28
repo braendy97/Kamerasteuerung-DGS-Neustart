@@ -256,6 +256,44 @@
 - optional: Sitz-Labels/Preset-Nummern sparsam in der UI sichtbar machen.
 - VISCA-Kommunikationslayer und Live-Steuerung weiterhin getrennt, später ergänzen.
 
+## 2026-03-28 – Preset-Vergabe 1: Zentrale Vergabelogik + Diagnose im Designer
+### Ausgangslage
+- `PresetNumber` wurde bisher nur beim Sitzgenerieren „nebenbei“ befüllt.
+- Es fehlte eine zentrale Logik für stabile Vergabe (10–210), sowie eine sichtbare Konflikterkennung.
+
+### Fachliche Regeln (dieser Block)
+- Nutzerbereich für Presets bleibt 10–210.
+- `0` bedeutet „nicht zugewiesen“.
+- Keine VISCA-Kommunikation, keine Presets werden gesendet.
+
+### Durchgeführte Änderungen
+- Preset-Logik zentralisiert (`LayoutSessionService`):
+  - feste Preset-Range als Konstanten (`UserPresetStart = 10`, `UserPresetEnd = 210`)
+  - `ReassignUserPresets()` vergibt Presets stabil/reproduzierbar über:
+    - Block-Reihenfolge (Y, X, Name)
+    - Sitz-Reihenfolge (SortOrder, Y, X, Label)
+  - Sitze ohne gültigen Block behalten `PresetNumber = 0`
+- Konflikt-/Diagnose-Funktionen ergänzt:
+  - doppelte Presets im gültigen Bereich werden als Konflikt erkannt
+  - ungültige Werte (nicht 0, aber außerhalb 10–210) werden gezählt
+  - Blockbezogene Zusammenfassung (First/Last Preset + Counts)
+- UI im `LayoutDesignerPage` erweitert:
+  - neue Sektion „Preset-Status“ (Bereich, gültig belegt, ungültig, Konflikte)
+  - blockbezogene Preset-Zusammenfassung für den ausgewählten Block
+  - Button „Presets neu berechnen“
+- Sitzgenerierung nutzt die zentrale Preset-Neuvergabe (keine lokale Preset-Vergabe mehr in der Generierung)
+
+### Ergebnis
+- Presets werden zentral und nachvollziehbar vergeben.
+- Nutzerbereich 10–210 wird eingehalten; Überlauf wird sichtbar über `0`.
+- Konflikte/ungültige Werte sind im Designer sichtbar zusammengefasst.
+- Alles weiterhin ohne VISCA-Kommunikation.
+
+### Offene Punkte für den nächsten Block
+- Optionale Verfeinerung der Block-/Sitzsortierung (fachlich: Bühnenbereich zuerst/zuletzt, manuelle Prioritäten).
+- Optional: Presetnummern direkt an Sitzen im Arbeitsfeld sparsam anzeigen.
+- Spätere Persistenz/Kompatibilitätsregeln, falls Presets manuell editierbar werden.
+
 ## 2026-03-28 – Block 1b: CameraProfile und erster Remote-Commit
 ### Ausgangslage
 - Lokale Projektbasis vollständig und buildfähig, aber noch nie ins Remote-Repository committed

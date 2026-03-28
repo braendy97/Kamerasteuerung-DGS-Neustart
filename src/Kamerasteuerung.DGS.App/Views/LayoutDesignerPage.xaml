@@ -43,9 +43,19 @@
                         <Button Text="Block hinzufügen" Clicked="OnAddBlockClicked" />
                         <Button Text="Block löschen" Clicked="OnDeleteBlockClicked" />
                         <Button Text="Sitze erzeugen" Clicked="OnGenerateSeatsClicked" />
+                        <Button Text="Presets neu berechnen" Clicked="OnReassignPresetsClicked" />
                     </HorizontalStackLayout>
 
                     <Label x:Name="SeatsSummaryLabel" Text="" FontSize="12" TextColor="Gray" />
+
+                    <Frame Padding="10" BorderColor="#DDDDDD">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Preset-Status" FontAttributes="Bold" />
+                            <Label x:Name="PresetRangeLabel" Text="" FontSize="12" TextColor="Gray" />
+                            <Label x:Name="PresetSummaryLabel" Text="" FontSize="12" TextColor="Gray" />
+                            <Label x:Name="SelectedBlockPresetSummaryLabel" Text="" FontSize="12" TextColor="Gray" />
+                        </VerticalStackLayout>
+                    </Frame>
 
                     <Frame Padding="10" BorderColor="#DDDDDD">
                         <VerticalStackLayout Spacing="6">

@@ -51,6 +51,19 @@
 - Preset-Vorbereitung beim Sitzgenerieren:
   - `PresetNumber` wird beim Generieren fortlaufend im Nutzerbereich 10–210 gesetzt (außerhalb: 0)
 
+## [0.11.0] - 2026-03-28
+### Hinzugefügt
+- Zentrale Preset-Vergabelogik im `LayoutSessionService`:
+  - stabil/reproduzierbar über Block- und Sitzreihenfolge (Blocks: Y/X/Name; Seats: SortOrder/Y/X/Label)
+  - gültiger Nutzerbereich fest: 10–210 (`0` = nicht zugewiesen)
+  - manuelle Aktion „Presets neu berechnen“ im Designer
+- Preset-Diagnostik (ohne VISCA):
+  - globale Zusammenfassung (gültige Belegung, ungültige Werte, Konflikte/Dubletten)
+  - Block-bezogene Zusammenfassung (Bereich/Counts)
+
+### Geändert
+- Sitzgenerierung delegiert Presetvergabe an die zentrale Neuvergabe (keine lokale Nebenlogik mehr)
+
 ## [0.3.0] - 2026-03-28
 ### Hinzugefügt
 - `Models/CameraProfile.cs` – Kamera-Konfigurationsmodell mit Name, Host, Port, PresetStart, PresetEnd, SupportsTracking, CameraType

@@ -10,6 +10,9 @@ public sealed class LayoutSessionService
     private readonly LayoutFileService _layoutFileService;
     private readonly SettingsFileService _settingsFileService;
 
+    public const int UserPresetStart = 10;
+    public const int UserPresetEnd = 210;
+
     public LayoutSessionService(AppSessionState state, LayoutFileService layoutFileService, SettingsFileService settingsFileService)
     {
         _state = state;
@@ -56,9 +59,6 @@ public sealed class LayoutSessionService
         var seatCount = rows * cols;
         var startOrder = _state.Layout.Seats.Count + 1;
 
-        const int presetStart = 10;
-        const int presetEnd = 210;
-
         var created = 0;
         for (var r = 0; r < rows; r++)
         {
@@ -67,12 +67,6 @@ public sealed class LayoutSessionService
                 created++;
                 var x = block.X + padding + c * (seatSize + gap);
                 var y = block.Y + padding + r * (seatSize + gap);
-
-                var preset = presetStart + created - 1;
-                if (preset > presetEnd)
-                {
-                    preset = 0;
-                }
 
                 _state.Layout.Seats.Add(new LayoutSeat
                 {
@@ -83,13 +77,146 @@ public sealed class LayoutSessionService
                     Width = seatSize,
                     Height = seatSize,
                     SortOrder = startOrder + created - 1,
-                    PresetNumber = preset
+                    PresetNumber = 0
                 });
             }
         }
 
-        _state.StatusMessage = $"Sitze erzeugt: {seatCount}";
+        ReassignUserPresets();
+        _state.StatusMessage = $"Sitze erzeugt: {seatCount} (Presets neu berechnet)";
         return true;
+    }
+
+    public sealed class PresetDiagnostics
+    {
+        public required int PresetStart { get; init; }
+        public required int PresetEnd { get; init; }
+        public required int ValidAssignedSeatCount { get; init; }
+        public required int InvalidSeatCount { get; init; }
+        public required int ConflictSeatCount { get; init; }
+        public required int ConflictPresetCount { get; init; }
+        public required int DistinctValidPresetCount { get; init; }
+
+        public int? SelectedBlockFirstPreset { get; init; }
+        public int? SelectedBlockLastPreset { get; init; }
+        public int SelectedBlockValidSeatCount { get; init; }
+        public int SelectedBlockInvalidSeatCount { get; init; }
+        public int SelectedBlockConflictSeatCount { get; init; }
+    }
+
+    public bool ReassignUserPresets()
+    {
+        if (_state.Layout is null)
+        {
+            _state.StatusMessage = "Kein Layout geladen";
+            return false;
+        }
+
+        var orderedBlocks = _state.Layout.Blocks
+            .OrderBy(b => b.Y)
+            .ThenBy(b => b.X)
+            .ThenBy(b => b.Name)
+            .ToList();
+
+        var presets = Enumerable.Range(UserPresetStart, UserPresetEnd - UserPresetStart + 1).GetEnumerator();
+
+        foreach (var block in orderedBlocks)
+        {
+            var seats = _state.Layout.Seats
+                .Where(s => s.BlockId == block.Id)
+                .OrderBy(s => s.SortOrder)
+                .ThenBy(s => s.Y)
+                .ThenBy(s => s.X)
+                .ThenBy(s => s.Label)
+                .ToList();
+
+            foreach (var seat in seats)
+            {
+                if (!presets.MoveNext())
+                {
+                    seat.PresetNumber = 0;
+                    continue;
+                }
+
+                seat.PresetNumber = presets.Current;
+            }
+        }
+
+        // Seats ohne BlockId oder mit unbekanntem BlockId werden bewusst nicht in die Vergabe einbezogen.
+        // Sie behalten/erhalten PresetNumber = 0, damit sie im Designer als "nicht zugewiesen" erkennbar bleiben.
+        foreach (var seat in _state.Layout.Seats.Where(s => string.IsNullOrWhiteSpace(s.BlockId) || !_state.Layout.Blocks.Any(b => b.Id == s.BlockId)))
+        {
+            seat.PresetNumber = 0;
+        }
+
+        _state.StatusMessage = "Presets neu berechnet";
+        return true;
+    }
+
+    public PresetDiagnostics GetPresetDiagnostics(string? selectedBlockId = null)
+    {
+        if (_state.Layout is null)
+        {
+            return new PresetDiagnostics
+            {
+                PresetStart = UserPresetStart,
+                PresetEnd = UserPresetEnd,
+                ValidAssignedSeatCount = 0,
+                InvalidSeatCount = 0,
+                ConflictSeatCount = 0,
+                ConflictPresetCount = 0,
+                DistinctValidPresetCount = 0,
+                SelectedBlockValidSeatCount = 0,
+                SelectedBlockInvalidSeatCount = 0,
+                SelectedBlockConflictSeatCount = 0
+            };
+        }
+
+        var seats = _state.Layout.Seats;
+        static bool IsValidUserPreset(int preset) => preset >= UserPresetStart && preset <= UserPresetEnd;
+
+        var validSeats = seats.Where(s => IsValidUserPreset(s.PresetNumber)).ToList();
+        var invalidSeats = seats.Where(s => s.PresetNumber != 0 && !IsValidUserPreset(s.PresetNumber)).ToList();
+
+        var duplicateGroups = validSeats.GroupBy(s => s.PresetNumber).Where(g => g.Count() > 1).ToList();
+        var conflictSeatIds = duplicateGroups.SelectMany(g => g.Select(s => s.Id)).ToHashSet();
+
+        int? selFirst = null;
+        int? selLast = null;
+        var selValidCount = 0;
+        var selInvalidCount = 0;
+        var selConflictCount = 0;
+
+        if (!string.IsNullOrWhiteSpace(selectedBlockId))
+        {
+            var selSeats = seats.Where(s => s.BlockId == selectedBlockId).ToList();
+            selValidCount = selSeats.Count(s => IsValidUserPreset(s.PresetNumber));
+            selInvalidCount = selSeats.Count(s => s.PresetNumber != 0 && !IsValidUserPreset(s.PresetNumber));
+            selConflictCount = selSeats.Count(s => conflictSeatIds.Contains(s.Id));
+
+            var selValidPresets = selSeats.Where(s => IsValidUserPreset(s.PresetNumber)).Select(s => s.PresetNumber).Order().ToList();
+            if (selValidPresets.Count > 0)
+            {
+                selFirst = selValidPresets.First();
+                selLast = selValidPresets.Last();
+            }
+        }
+
+        return new PresetDiagnostics
+        {
+            PresetStart = UserPresetStart,
+            PresetEnd = UserPresetEnd,
+            ValidAssignedSeatCount = validSeats.Count,
+            InvalidSeatCount = invalidSeats.Count,
+            ConflictSeatCount = conflictSeatIds.Count,
+            ConflictPresetCount = duplicateGroups.Count,
+            DistinctValidPresetCount = validSeats.Select(s => s.PresetNumber).Distinct().Count(),
+            SelectedBlockFirstPreset = selFirst,
+            SelectedBlockLastPreset = selLast,
+            SelectedBlockValidSeatCount = selValidCount,
+            SelectedBlockInvalidSeatCount = selInvalidCount,
+            SelectedBlockConflictSeatCount = selConflictCount
+        };
     }
 
     public bool SetSelectedBlockCameraType(CameraType cameraType)

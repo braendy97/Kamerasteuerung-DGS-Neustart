@@ -67,8 +67,48 @@ public partial class LayoutDesignerPage : ContentPage
 
         RefreshBlocksList(scale);
         RefreshSeatsSummary();
+        RefreshPresetSummary();
         RefreshSelectedBlockCameraType();
         RenderBlocksAndSeats(scale);
+    }
+
+    private void RefreshPresetSummary()
+    {
+        if (_state.Layout is null)
+        {
+            PresetRangeLabel.Text = string.Empty;
+            PresetSummaryLabel.Text = string.Empty;
+            SelectedBlockPresetSummaryLabel.Text = string.Empty;
+            return;
+        }
+
+        var diag = _layoutSession.GetPresetDiagnostics(_state.SelectedBlockId);
+        PresetRangeLabel.Text = $"Nutzerbereich: {diag.PresetStart}–{diag.PresetEnd} (0 = nicht zugewiesen)";
+
+        PresetSummaryLabel.Text = $"Gültig belegt: {diag.DistinctValidPresetCount} Presets / {diag.ValidAssignedSeatCount} Sitze | Ungültig: {diag.InvalidSeatCount} | Konflikte: {diag.ConflictPresetCount} Presets ({diag.ConflictSeatCount} Sitze)";
+
+        if (string.IsNullOrWhiteSpace(_state.SelectedBlockId))
+        {
+            SelectedBlockPresetSummaryLabel.Text = "Ausgewählter Block: (keiner)";
+            return;
+        }
+
+        var rangeText = diag.SelectedBlockFirstPreset is null
+            ? "Presetbereich: (keine gültigen Presets)"
+            : $"Presetbereich: {diag.SelectedBlockFirstPreset}–{diag.SelectedBlockLastPreset}";
+
+        var flags = new List<string>();
+        if (diag.SelectedBlockInvalidSeatCount > 0)
+        {
+            flags.Add($"ungültig: {diag.SelectedBlockInvalidSeatCount}");
+        }
+        if (diag.SelectedBlockConflictSeatCount > 0)
+        {
+            flags.Add($"Konflikte: {diag.SelectedBlockConflictSeatCount}");
+        }
+        var flagsText = flags.Count == 0 ? string.Empty : " | " + string.Join(" | ", flags);
+
+        SelectedBlockPresetSummaryLabel.Text = $"Ausgewählter Block: {rangeText} | gültige Sitze: {diag.SelectedBlockValidSeatCount}{flagsText}";
     }
 
     private void RefreshSelectedBlockCameraType()
@@ -250,6 +290,12 @@ public partial class LayoutDesignerPage : ContentPage
     private void OnGenerateSeatsClicked(object sender, EventArgs e)
     {
         _layoutSession.GenerateSeatsForSelectedBlock(overwriteExisting: true);
+        Refresh();
+    }
+
+    private void OnReassignPresetsClicked(object sender, EventArgs e)
+    {
+        _layoutSession.ReassignUserPresets();
         Refresh();
     }
 
