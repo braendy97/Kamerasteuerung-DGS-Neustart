@@ -7,12 +7,14 @@ namespace Kamerasteuerung.DGS.App.Views;
 public partial class SettingsPage : ContentPage
 {
     private readonly SettingsFileService _settingsFileService;
+    private readonly AppSessionState _state;
     private AppSettings _settings = new();
 
-    public SettingsPage()
+    public SettingsPage(SettingsFileService settingsFileService, AppSessionState state)
     {
         InitializeComponent();
-        _settingsFileService = new SettingsFileService();
+        _settingsFileService = settingsFileService;
+        _state = state;
     }
 
     protected override async void OnAppearing()
@@ -20,6 +22,7 @@ public partial class SettingsPage : ContentPage
         base.OnAppearing();
 
         _settings = await _settingsFileService.LoadAppSettingsAsync(AppPaths.SettingsFilePath);
+        _state.Settings = _settings;
         PopulateUiFromSettings(_settings);
     }
 
@@ -51,6 +54,7 @@ public partial class SettingsPage : ContentPage
         {
             PopulateSettingsFromUi(_settings);
             await _settingsFileService.SaveAppSettingsAsync(AppPaths.SettingsFilePath, _settings);
+            _state.Settings = _settings;
             await DisplayAlert("Gespeichert", "Einstellungen wurden gespeichert.", "OK");
         }
         catch (Exception ex)

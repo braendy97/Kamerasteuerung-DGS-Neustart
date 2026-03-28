@@ -9,6 +9,12 @@
 - `AppSettings` erweitert (LastLayoutFilePath, LayoutsFolderPath, V600/SMTAV Host+Port) und kompatible Alias-Properties beibehalten
 - `LayoutDocument` um minimale Metadaten ergänzt (`Id`) und Alias-Properties für die Doku ergänzt
 
+## [0.5.0] - 2026-03-28
+### Hinzugefügt
+- App-Startfluss: Settings laden und optionales Auto-Load des letzten Layouts über `LastLayoutFilePath`
+- Minimaler App-Zustand (`AppSessionState`) für Settings/Layout/Status
+- Startseite zeigt Lade-/Fehlerstatus sowie Layoutname sichtbar an
+
 ## [0.3.0] - 2026-03-28
 ### Hinzugefügt
 - `Models/CameraProfile.cs` – Kamera-Konfigurationsmodell mit Name, Host, Port, PresetStart, PresetEnd, SupportsTracking, CameraType

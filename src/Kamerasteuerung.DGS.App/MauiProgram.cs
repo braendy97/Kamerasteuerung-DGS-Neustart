@@ -1,4 +1,6 @@
 using Kamerasteuerung.DGS.App.Views;
+using Kamerasteuerung.DGS.App.Services;
+using Kamerasteuerung.DGS.Core.Services;
 
 namespace Kamerasteuerung.DGS.App;
 
@@ -10,6 +12,11 @@ public static class MauiProgram
 
         builder
             .UseMauiApp<App>();
+
+        builder.Services.AddSingleton<AppSessionState>();
+        builder.Services.AddSingleton<SettingsFileService>();
+        builder.Services.AddSingleton<LayoutFileService>();
+        builder.Services.AddSingleton<AppStartupService>();
 
         builder.Services.AddSingleton<HomePage>();
         builder.Services.AddSingleton<LayoutDesignerPage>();

@@ -8,6 +8,15 @@
         <VerticalStackLayout Padding="20" Spacing="16">
             <Label Text="Kamerasteuerung DGS" FontSize="24" FontAttributes="Bold" />
             <Label Text="Neustart-Projekt mit freiem Layout-Designer statt starrer Buttonmatrix." />
+
+            <Frame Padding="12" BorderColor="#CCCCCC">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Startstatus" FontAttributes="Bold" />
+                    <Label x:Name="StartupStatusLabel" Text="App wird initialisiert ..." />
+                    <Label x:Name="LayoutNameLabel" Text="Kein Layout geladen" />
+                </VerticalStackLayout>
+            </Frame>
+
             <Label Text="Kernideen:" FontAttributes="Bold" />
             <Label Text="• Layout-Datei frei speicherbar und wieder ladbar" />
             <Label Text="• MAUI als erster UI-Client" />

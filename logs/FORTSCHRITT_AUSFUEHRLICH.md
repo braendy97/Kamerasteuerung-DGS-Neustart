@@ -93,6 +93,39 @@
 - Layout-Import/Export/"Speichern unter" vorbereiten
 - Layout-Designer technisch beginnen
 
+## 2026-03-28 – Block 3: App-Startfluss mit Auto-Load + sichtbarer Status
+### Ausgangslage
+- App-Settings konnten gespeichert werden und Layout-Persistenz war vorhanden.
+- Beim Start wurde jedoch noch nichts automatisch geladen.
+- Kein sichtbarer Fallback-/Fehlerstatus auf der Startseite.
+
+### Durchgeführte Änderungen
+- Minimaler App-Zustand eingeführt (`AppSessionState`):
+  - geladene `AppSettings`
+  - aktuelles `LayoutDocument` oder `null`
+  - `StatusMessage` für UI
+- Startlogik ergänzt (`AppStartupService`):
+  - lädt `appsettings.json`
+  - prüft `LastLayoutFilePath`
+  - lädt Layout nur wenn Pfad gesetzt und Datei vorhanden
+  - behandelt Leerfall/Fehlerfall ohne App-Absturz und setzt klaren Status
+- App-Start verdrahtet (`App.xaml.cs`): Initialisierung wird beim Fensterstart asynchron angestoßen.
+- `HomePage` zeigt Status und Layoutname sichtbar an.
+- `SettingsPage` nutzt DI-Services/State, damit gespeicherte Werte konsistent im App-Zustand landen.
+
+### Ergebnis
+- App startet immer sauber.
+- Zustände sind unterscheidbar sichtbar:
+  - „Kein Layoutpfad konfiguriert“
+  - „Layoutdatei nicht gefunden“
+  - „Layout konnte nicht geladen werden“
+  - „Layout erfolgreich geladen: <Name>“
+
+### Offene Punkte für den nächsten Block
+- Auto-Load so erweitern, dass auch ein UI-Refresh ohne Timer möglich ist (optional, später)
+- Dateiauswahl-UI für Layoutpfad
+- Import/Export/„Speichern unter“
+
 ## 2026-03-28 – Block 1b: CameraProfile und erster Remote-Commit
 ### Ausgangslage
 - Lokale Projektbasis vollständig und buildfähig, aber noch nie ins Remote-Repository committed
