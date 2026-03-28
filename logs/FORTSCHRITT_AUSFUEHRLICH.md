@@ -417,6 +417,34 @@
 - später: echte Transport-/TCP-Schicht + ACK/Timeout-Strategie pro Kamera.
 - später: Integration der exportierbaren Preset-Übersicht in Live-Steuerpfade (nicht im Designer).
 
+## 2026-03-28 – VISCA-Core 2: TCP-Transport + Antwort lesen (ohne UI)
+### Ausgangslage
+- VISCA-Preset-Befehle konnten zentral erzeugt werden (Bytes + Hex), aber es gab noch keinen Transport.
+
+### Fachliche Regeln (dieser Block)
+- Keine UI-Verdrahtung, kein Live-Trigger aus Seiten.
+- Fokus nur auf TCP-Verbindung, Senden und optionales Antwortlesen.
+- keine Retry-/Timeout-Orgie; nur kleine Defaults.
+
+### Durchgeführte Änderungen
+- Transport-Grundtypen ergänzt:
+  - `ViscaTransportOptions` (Connect/Write/Read-Timeouts, Response an/aus, MaxResponseBytes)
+  - `ViscaTransportResult` (Success/Failure + Hex-Diagnose für Send/Response)
+- TCP-Transportservice ergänzt:
+  - `ViscaTcpTransportService.SendAsync(...)` nutzt `TcpClient` und liest optional eine kurze Antwort
+  - Default-Timeouts werden minimal über Kameratyp vorbereitet (V600 vs. SMTAV)
+- Kombinierter fachlicher Sendepfad ergänzt:
+  - `ViscaPresetCommandSender.SendPresetCommandAsync(...)` baut zuerst den Befehl (inkl. Preset-Validierung), sendet dann via TCP und liefert Diagnose zurück
+
+### Ergebnis
+- Core kann (optional) VISCA-Befehle über TCP senden und eine Antwort technisch lesbar zurückgeben.
+- Fehler/Timeouts werden als Result-Objekte zurückgegeben (keine ungefilterte Exception-Flut).
+- weiterhin ohne UI-Anbindung.
+
+### Offene Punkte für den nächsten Block
+- VISCA-Core 3: ACK/Completion semantisch interpretieren (VISCA Response Parsing) + Strategie pro Kameratyp.
+- später: UI-/Live-Anbindung getrennt über einen eigenen Runtime-Layer.
+
 ## 2026-03-28 – Block 1b: CameraProfile und erster Remote-Commit
 ### Ausgangslage
 - Lokale Projektbasis vollständig und buildfähig, aber noch nie ins Remote-Repository committed

@@ -94,6 +94,14 @@
   - zentrale Erzeugung von VISCA Preset-Befehlen aus Kameraprofil + Aktion + Presetnummer (`ViscaPresetCommandService`)
   - Hex-Ausgabehilfe für Debug (`ViscaHex.ToHexString`)
 
+## [0.16.0] - 2026-03-28
+### Hinzugefügt
+- VISCA-Core TCP-Transport (ohne UI):
+  - `ViscaTcpTransportService` (TcpClient, connect/write/read mit Timeouts)
+  - `ViscaTransportOptions` (Connect/Write/Read-Timeouts, Response an/aus, MaxResponseBytes)
+  - `ViscaTransportResult` (Success/Failure + Hex-Diagnose für Send/Response)
+  - kombinierter Sendepfad `ViscaPresetCommandSender.SendPresetCommandAsync(...)` (Befehl bauen + senden + optionale Antwort)
+
 ## [0.3.0] - 2026-03-28
 ### Hinzugefügt
 - `Models/CameraProfile.cs` – Kamera-Konfigurationsmodell mit Name, Host, Port, PresetStart, PresetEnd, SupportsTracking, CameraType

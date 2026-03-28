@@ -33,4 +33,10 @@ Aktuell existieren im Repository zwei Ebenen von "Profilen":
 Für die spätere Kamerakommunikation gilt:
 - Preset-Nummern werden fachlich im Nutzerbereich 10–210 validiert.
 - Aus einem (Model-)Kameraprofil + Preset-Aktion wird zentral ein VISCA-Befehl erzeugt.
-- Netzwerk-/TCP-Senden ist in diesem Ausbaublock noch nicht enthalten.
+- TCP-Senden/Antwortlesen ist im Core als kleiner Transportservice vorbereitet (ohne UI-Anbindung).
+
+Transport-Defaults (aktuell):
+- ConnectTimeout: 2s
+- WriteTimeout: 2s
+- ReadTimeout: ~400ms (V600) / ~600ms (SMTAV V60XL)
+- Antwortlesen ist standardmäßig aktiv (kann pro Options deaktiviert werden)
