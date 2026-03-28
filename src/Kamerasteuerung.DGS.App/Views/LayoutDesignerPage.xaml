@@ -7,7 +7,7 @@
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="16">
             <Label Text="Layout-Designer" FontSize="24" FontAttributes="Bold" />
-            <Label Text="Dieser Platzhalter ist die Startbasis für den freien Designer." />
+            <Label Text="Grundansicht: Layoutdaten + Arbeitsfläche (noch ohne Editor-Funktionen)." />
 
             <Frame Padding="12" BorderColor="#CCCCCC">
                 <VerticalStackLayout Spacing="6">
@@ -21,6 +21,40 @@
                         <Button Text="Layout öffnen" Clicked="OnOpenLayoutClicked" />
                         <Button Text="Layout speichern" Clicked="OnSaveLayoutClicked" />
                     </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame x:Name="NoLayoutFrame" Padding="12" BorderColor="#FFB74D" BackgroundColor="#FFF3E0" IsVisible="False">
+                <Label Text="Kein Layout geladen. Bitte 'Neues Layout' erstellen oder 'Layout öffnen' verwenden." />
+            </Frame>
+
+            <Frame x:Name="LayoutSummaryFrame" Padding="12" BorderColor="#CCCCCC" IsVisible="False">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Zusammenfassung" FontAttributes="Bold" />
+                    <Label x:Name="CanvasSizeLabel" Text="" />
+                    <Label x:Name="CountsLabel" Text="" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame x:Name="WorkAreaFrame" Padding="12" BorderColor="#2196F3" IsVisible="False">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Arbeitsfläche" FontAttributes="Bold" />
+                    <Label x:Name="WorkAreaScaleLabel" Text="" FontSize="12" TextColor="Gray" />
+
+                    <ScrollView Orientation="Both">
+                        <Grid>
+                            <Border x:Name="WorkAreaBorder"
+                                    Stroke="#1976D2"
+                                    StrokeThickness="2"
+                                    Background="#E3F2FD"
+                                    WidthRequest="400"
+                                    HeightRequest="260" />
+                            <Label Text="(Hier werden später Blöcke/Sitze platziert)"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"
+                                   TextColor="#455A64" />
+                        </Grid>
+                    </ScrollView>
                 </VerticalStackLayout>
             </Frame>
 

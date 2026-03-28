@@ -150,6 +150,27 @@
 - Echter Save-Picker / „Speichern unter“ (optional)
 - Layout-Designer (Bearbeitung) beginnen
 
+## 2026-03-28 – Block 5: LayoutDesignerPage als Designer-Grundzustand
+### Ausgangslage
+- Layout konnte bereits geladen/gespeichert werden, aber der "Designer" war faktisch nur Text.
+- Es fehlte eine sichtbare Arbeitsfläche und eine sachliche Layout-Zusammenfassung.
+
+### Durchgeführte Änderungen
+- `LayoutDesignerPage` ausgebaut:
+  - klarer Leerzustand (Hinweisfläche, wenn kein Layout geladen ist)
+  - Layout-Zusammenfassung: Name, Pfad, Canvas-Größe, Counts (Blöcke/Sitze/Kameras/Teilnehmer)
+  - sichtbare Arbeitsfläche mit Rand (Breite/Höhe aus `LayoutDocument.Canvas` abgeleitet, bei Bedarf skaliert)
+- Kleine Hilfslogik im Code-Behind (`ComputeWorkAreaSize`) zur skalierenden Darstellung ohne zusätzliche Libraries.
+
+### Ergebnis
+- Benutzer sieht erstmals eine echte, erkennbare Layout-Arbeitsfläche.
+- Die Arbeitsfläche basiert fachlich auf der Layout-Canvas-Größe.
+- Geladener Zustand und leerer Zustand sind klar unterscheidbar.
+
+### Offene Punkte für den nächsten Block
+- Erste echte Platzierungs-/Bearbeitungslogik (z. B. Blöcke/Sitze anzeigen)
+- Drag & Drop / freie Positionierung (später)
+
 ## 2026-03-28 – Block 1b: CameraProfile und erster Remote-Commit
 ### Ausgangslage
 - Lokale Projektbasis vollständig und buildfähig, aber noch nie ins Remote-Repository committed

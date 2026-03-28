@@ -20,6 +20,13 @@
 - Manuelle Layout-Dateiverwaltung in der UI: Neues Layout / Öffnen / Speichern
 - Nach Öffnen/Speichern wird `LastLayoutFilePath` aktualisiert und in `appsettings.json` persistiert
 
+## [0.7.0] - 2026-03-28
+### Hinzugefügt
+- `LayoutDesignerPage` als echter Designer-Grundzustand:
+  - sichtbare Arbeitsfläche mit Rand (größe aus `LayoutDocument.Canvas` abgeleitet, ggf. skaliert)
+  - leerer Zustand vs. geladener Zustand klar unterscheidbar
+  - sachliche Layout-Zusammenfassung (Name, Größe, Counts)
+
 ## [0.3.0] - 2026-03-28
 ### Hinzugefügt
 - `Models/CameraProfile.cs` – Kamera-Konfigurationsmodell mit Name, Host, Port, PresetStart, PresetEnd, SupportsTracking, CameraType
