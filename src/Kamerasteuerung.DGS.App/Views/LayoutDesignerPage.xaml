@@ -42,7 +42,10 @@
                         <Label Text="Blöcke" FontAttributes="Bold" VerticalOptions="Center" />
                         <Button Text="Block hinzufügen" Clicked="OnAddBlockClicked" />
                         <Button Text="Block löschen" Clicked="OnDeleteBlockClicked" />
+                        <Button Text="Sitze erzeugen" Clicked="OnGenerateSeatsClicked" />
                     </HorizontalStackLayout>
+
+                    <Label x:Name="SeatsSummaryLabel" Text="" FontSize="12" TextColor="Gray" />
 
                     <CollectionView x:Name="BlocksCollectionView" SelectionMode="Single" SelectionChanged="OnBlockSelectionChanged">
                         <CollectionView.ItemTemplate>

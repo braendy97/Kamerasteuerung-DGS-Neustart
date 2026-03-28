@@ -9,5 +9,8 @@ public sealed class LayoutSeat
     public int PresetNumber { get; set; }
     public double X { get; set; }
     public double Y { get; set; }
+    public double Width { get; set; } = 30;
+    public double Height { get; set; } = 30;
+    public int SortOrder { get; set; }
     public string? AssignedParticipantId { get; set; }
 }

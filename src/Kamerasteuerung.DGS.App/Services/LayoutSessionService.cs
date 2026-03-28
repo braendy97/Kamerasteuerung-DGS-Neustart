@@ -17,6 +17,71 @@ public sealed class LayoutSessionService
         _settingsFileService = settingsFileService;
     }
 
+    public bool GenerateSeatsForSelectedBlock(bool overwriteExisting = true)
+    {
+        if (_state.Layout is null)
+        {
+            _state.StatusMessage = "Kein Layout geladen";
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(_state.SelectedBlockId))
+        {
+            _state.StatusMessage = "Kein Block ausgewählt";
+            return false;
+        }
+
+        var block = _state.Layout.Blocks.FirstOrDefault(b => b.Id == _state.SelectedBlockId);
+        if (block is null)
+        {
+            _state.StatusMessage = "Block nicht gefunden";
+            return false;
+        }
+
+        if (overwriteExisting)
+        {
+            _state.Layout.Seats.RemoveAll(s => s.BlockId == block.Id);
+        }
+
+        const double padding = 10;
+        const double gap = 6;
+        const double seatSize = 28;
+
+        var innerWidth = Math.Max(0, block.Width - (padding * 2));
+        var innerHeight = Math.Max(0, block.Height - (padding * 2));
+
+        var cols = Math.Max(1, (int)Math.Floor((innerWidth + gap) / (seatSize + gap)));
+        var rows = Math.Max(1, (int)Math.Floor((innerHeight + gap) / (seatSize + gap)));
+
+        var seatCount = rows * cols;
+        var startOrder = _state.Layout.Seats.Count + 1;
+
+        var created = 0;
+        for (var r = 0; r < rows; r++)
+        {
+            for (var c = 0; c < cols; c++)
+            {
+                created++;
+                var x = block.X + padding + c * (seatSize + gap);
+                var y = block.Y + padding + r * (seatSize + gap);
+
+                _state.Layout.Seats.Add(new LayoutSeat
+                {
+                    BlockId = block.Id,
+                    Label = $"S{created}",
+                    X = x,
+                    Y = y,
+                    Width = seatSize,
+                    Height = seatSize,
+                    SortOrder = startOrder + created - 1
+                });
+            }
+        }
+
+        _state.StatusMessage = $"Sitze erzeugt: {seatCount}";
+        return true;
+    }
+
     public bool AddBlock()
     {
         if (_state.Layout is null)

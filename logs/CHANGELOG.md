@@ -35,6 +35,13 @@
   - einfache Darstellung als Rechtecke im Arbeitsfeld (skalierungs-respektierend)
   - optionales Löschen des ausgewählten Blocks
 
+## [0.9.0] - 2026-03-28
+### Hinzugefügt
+- Sitzraster innerhalb eines Blocks:
+  - Sitze für ausgewählten Block generieren (überschreibt bestehende Sitze des Blocks)
+  - Sitze werden im Arbeitsfeld innerhalb der Blockfläche sichtbar angezeigt
+  - Sitzanzahl: ausgewählter Block + Gesamt
+
 ## [0.3.0] - 2026-03-28
 ### Hinzugefügt
 - `Models/CameraProfile.cs` – Kamera-Konfigurationsmodell mit Name, Host, Port, PresetStart, PresetEnd, SupportsTracking, CameraType

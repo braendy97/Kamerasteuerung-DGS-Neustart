@@ -196,6 +196,32 @@
 - Sitze/Plätze als nächste Elemente (optional)
 - Bearbeitung von Block-Attributen (Name/Größe/Position) ohne Drag & Drop (z. B. via Eingabefelder)
 
+## 2026-03-28 – Block 7: Sitze innerhalb von Blöcken (generieren + anzeigen)
+### Ausgangslage
+- Blöcke konnten angelegt/angezeigt/ausgewählt/gelöscht werden.
+- Es fehlten jedoch Sitze/Plätze innerhalb eines Blocks.
+
+### Durchgeführte Änderungen
+- `LayoutSeat` minimal erweitert: `Width`, `Height`, `SortOrder`.
+- `LayoutSessionService` erweitert:
+  - `GenerateSeatsForSelectedBlock(...)` erzeugt ein einfaches Raster innerhalb des ausgewählten Blocks
+  - vorhandene Sitze des Blocks werden dabei überschrieben (keine Dubletten)
+  - Sitze werden in `LayoutDocument.Seats` gespeichert (mit `BlockId`-Zuordnung)
+- `LayoutDesignerPage` erweitert:
+  - Button "Sitze erzeugen" (wirkt auf ausgewählten Block)
+  - Anzeige Sitzanzahl (ausgewählter Block + gesamt)
+  - Rendering: Sitze als kleine Rechtecke innerhalb der Blockfläche (skalierungs-respektierend)
+
+### Ergebnis
+- Für den ausgewählten Block können Sitze generiert werden.
+- Sitzdaten liegen im Layoutmodell und werden mitgespeichert.
+- Sitze werden im Arbeitsfeld sichtbar angezeigt.
+
+### Offene Punkte für den nächsten Block
+- Sitz-Labels optional im UI anzeigen (sparsam)
+- Sitz-Preset-/Kamerazuordnung (später)
+- Teilnehmerzuordnung (später)
+
 ## 2026-03-28 – Block 1b: CameraProfile und erster Remote-Commit
 ### Ausgangslage
 - Lokale Projektbasis vollständig und buildfähig, aber noch nie ins Remote-Repository committed

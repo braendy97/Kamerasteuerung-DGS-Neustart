@@ -64,7 +64,27 @@ public partial class LayoutDesignerPage : ContentPage
             : $"Darstellung skaliert: {scale * 100:0}%";
 
         RefreshBlocksList(scale);
-        RenderBlocks(scale);
+        RefreshSeatsSummary();
+        RenderBlocksAndSeats(scale);
+    }
+
+    private void RefreshSeatsSummary()
+    {
+        if (_state.Layout is null)
+        {
+            SeatsSummaryLabel.Text = string.Empty;
+            return;
+        }
+
+        var total = _state.Layout.Seats.Count;
+        if (string.IsNullOrWhiteSpace(_state.SelectedBlockId))
+        {
+            SeatsSummaryLabel.Text = $"Sitze gesamt: {total}";
+            return;
+        }
+
+        var inBlock = _state.Layout.Seats.Count(s => s.BlockId == _state.SelectedBlockId);
+        SeatsSummaryLabel.Text = $"Sitze im ausgewählten Block: {inBlock} | Sitze gesamt: {total}";
     }
 
     private sealed class BlockListItem
@@ -98,7 +118,7 @@ public partial class LayoutDesignerPage : ContentPage
         BlocksCollectionView.SelectedItem = items.FirstOrDefault(i => i.Id == selectedId);
     }
 
-    private void RenderBlocks(double scale)
+    private void RenderBlocksAndSeats(double scale)
     {
         BlocksOverlay.Children.Clear();
 
@@ -133,6 +153,24 @@ public partial class LayoutDesignerPage : ContentPage
 
             AbsoluteLayout.SetLayoutBounds(border, new Rect(x, y, w, h));
             BlocksOverlay.Children.Add(border);
+
+            foreach (var seat in _state.Layout.Seats.Where(s => s.BlockId == block.Id))
+            {
+                var seatBorder = new Border
+                {
+                    Stroke = Colors.DimGray,
+                    StrokeThickness = 1,
+                    BackgroundColor = Color.FromArgb("#B3FFFDE7")
+                };
+
+                var sx = seat.X * scale;
+                var sy = seat.Y * scale;
+                var sw = Math.Max(8, seat.Width * scale);
+                var sh = Math.Max(8, seat.Height * scale);
+
+                AbsoluteLayout.SetLayoutBounds(seatBorder, new Rect(sx, sy, sw, sh));
+                BlocksOverlay.Children.Add(seatBorder);
+            }
         }
     }
 
@@ -151,6 +189,12 @@ public partial class LayoutDesignerPage : ContentPage
     private void OnNewLayoutClicked(object sender, EventArgs e)
     {
         _layoutSession.CreateNewLayout();
+        Refresh();
+    }
+
+    private void OnGenerateSeatsClicked(object sender, EventArgs e)
+    {
+        _layoutSession.GenerateSeatsForSelectedBlock(overwriteExisting: true);
         Refresh();
     }
 
