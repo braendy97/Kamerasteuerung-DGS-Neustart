@@ -12,18 +12,32 @@ public sealed class LayoutFileService
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
-    public LayoutDocument Load(string path)
+    public LayoutDocument Load(string path) => LoadLayoutAsync(path).GetAwaiter().GetResult();
+
+    public void Save(string path, LayoutDocument document) => SaveLayoutAsync(path, document).GetAwaiter().GetResult();
+
+    public async Task<LayoutDocument> LoadLayoutAsync(string path, CancellationToken cancellationToken = default)
     {
-        var json = File.ReadAllText(path);
-        return JsonSerializer.Deserialize<LayoutDocument>(json, SerializerOptions)
-               ?? throw new InvalidOperationException("Layoutdatei konnte nicht gelesen werden.");
+        try
+        {
+            var json = await File.ReadAllTextAsync(path, cancellationToken).ConfigureAwait(false);
+            return JsonSerializer.Deserialize<LayoutDocument>(json, SerializerOptions)
+                   ?? throw new InvalidOperationException("Layoutdatei konnte nicht gelesen werden.");
+        }
+        catch (FileNotFoundException ex)
+        {
+            throw new InvalidOperationException("Layoutdatei wurde nicht gefunden.", ex);
+        }
+        catch (JsonException ex)
+        {
+            throw new InvalidOperationException("Layoutdatei ist kein gültiges JSON.", ex);
+        }
     }
 
-    public void Save(string path, LayoutDocument document)
+    public async Task SaveLayoutAsync(string path, LayoutDocument document, CancellationToken cancellationToken = default)
     {
         document.LastUpdatedUtc = DateTime.UtcNow;
 
-        var json = JsonSerializer.Serialize(document, SerializerOptions);
         var directory = Path.GetDirectoryName(path);
 
         if (string.IsNullOrWhiteSpace(directory))
@@ -33,10 +47,11 @@ public sealed class LayoutFileService
 
         Directory.CreateDirectory(directory);
 
+        var json = JsonSerializer.Serialize(document, SerializerOptions);
         var tempPath = path + ".tmp";
         var backupPath = path + ".bak";
 
-        File.WriteAllText(tempPath, json);
+        await File.WriteAllTextAsync(tempPath, json, System.Text.Encoding.UTF8, cancellationToken).ConfigureAwait(false);
 
         if (File.Exists(path))
         {

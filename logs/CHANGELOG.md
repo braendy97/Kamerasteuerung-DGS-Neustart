@@ -1,5 +1,14 @@
 # Änderungslog
 
+## [0.4.0] - 2026-03-28
+### Hinzugefügt
+- JSON-Persistenzgrundlage im Core: Async Load/Save für Layout und App-Settings (System.Text.Json, UTF-8, WriteIndented)
+- MAUI: `SettingsPage` kann Einstellungen laden/speichern (app-local `appsettings.json` in AppData)
+
+### Geändert
+- `AppSettings` erweitert (LastLayoutFilePath, LayoutsFolderPath, V600/SMTAV Host+Port) und kompatible Alias-Properties beibehalten
+- `LayoutDocument` um minimale Metadaten ergänzt (`Id`) und Alias-Properties für die Doku ergänzt
+
 ## [0.3.0] - 2026-03-28
 ### Hinzugefügt
 - `Models/CameraProfile.cs` – Kamera-Konfigurationsmodell mit Name, Host, Port, PresetStart, PresetEnd, SupportsTracking, CameraType

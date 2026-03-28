@@ -4,19 +4,35 @@
 Empfohlene Dateiendung:
 - `.dgslayout.json`
 
-Inhalt:
-- Metadaten
-- Canvas-Einstellungen
-- Kameras
-- Blöcke
-- Plätze
-- Teilnehmerliste
+Rolle:
+- Externe, frei speicherbare Datei für ein konkretes Layout.
+- Kann später zwischen Geräten geteilt werden (Mehrgeräte-Konflikte werden erst später behandelt).
+
+Inhalt (Wurzelmodell: `LayoutDocument`):
+- `Id`
+- `DocumentVersion`
+- `Name`
+- `LastUpdatedUtc`
+- `Canvas` (`Width`, `Height`, `Zoom`)
+- `Cameras`
+- `Blocks`
+- `Seats`
+- `Participants`
 
 ## Settings-Datei
-Lokale App-Datei:
-- letzter Layoutpfad
-- Standard-Speicherordner
-- optionale Kamera-Defaults
+Rolle:
+- Lokale App-Datei (gerät-/nutzerbezogen), nicht zum Teilen gedacht.
+- Merkt sich u. a. den zuletzt verwendeten Layout-Pfad.
+
+Dateiname (aktuell in MAUI):
+- `appsettings.json` (unter AppData)
+
+Inhalt (Wurzelmodell: `AppSettings`):
+- `LastLayoutFilePath` (Pfad zur zuletzt verwendeten Layoutdatei; später Grundlage für Auto-Load beim Start)
+- optional vorbereitend: `LayoutsFolderPath`
+- Kamera-Defaults:
+  - `V600Host` / `V600Port`
+  - `SmtavV60XlHost` / `SmtavV60XlPort`
 
 ## Speichersicherheit
 Beim Speichern:

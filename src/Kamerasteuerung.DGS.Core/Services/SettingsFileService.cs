@@ -12,19 +12,30 @@ public sealed class SettingsFileService
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
-    public AppSettings Load(string path)
+    public AppSettings Load(string path) => LoadAppSettingsAsync(path).GetAwaiter().GetResult();
+
+    public void Save(string path, AppSettings settings) => SaveAppSettingsAsync(path, settings).GetAwaiter().GetResult();
+
+    public async Task<AppSettings> LoadAppSettingsAsync(string path, CancellationToken cancellationToken = default)
     {
         if (!File.Exists(path))
         {
             return new AppSettings();
         }
 
-        var json = File.ReadAllText(path);
-        return JsonSerializer.Deserialize<AppSettings>(json, SerializerOptions)
-               ?? new AppSettings();
+        try
+        {
+            var json = await File.ReadAllTextAsync(path, cancellationToken).ConfigureAwait(false);
+            return JsonSerializer.Deserialize<AppSettings>(json, SerializerOptions)
+                   ?? new AppSettings();
+        }
+        catch (JsonException)
+        {
+            return new AppSettings();
+        }
     }
 
-    public void Save(string path, AppSettings settings)
+    public async Task SaveAppSettingsAsync(string path, AppSettings settings, CancellationToken cancellationToken = default)
     {
         var directory = Path.GetDirectoryName(path);
 
@@ -35,6 +46,6 @@ public sealed class SettingsFileService
 
         Directory.CreateDirectory(directory);
         var json = JsonSerializer.Serialize(settings, SerializerOptions);
-        File.WriteAllText(path, json);
+        await File.WriteAllTextAsync(path, json, System.Text.Encoding.UTF8, cancellationToken).ConfigureAwait(false);
     }
 }

@@ -64,6 +64,35 @@
 - SettingsPage mit echter Persistenz verdrahten
 - VISCA-Kommunikation als erste echte Runtime-Implementierung ergänzen
 
+## 2026-03-28 – Block 2: JSON-Dateiformat + Settings-Persistenz (Grundlage)
+### Ausgangslage
+- Buildfähige Basis vorhanden, aber:
+  - keine echte Persistenz für App-Settings
+  - kein konsistentes, dokumentiertes JSON-Layoutformat (nur Modell vorhanden)
+  - SettingsPage war nur UI ohne Speicherfunktion
+
+### Durchgeführte Änderungen
+- Core-Modelle gezielt ergänzt:
+  - `LayoutDocument`: `Id` ergänzt sowie Alias-Properties für Version/Canvas/LastModified (ohne State-Duplikate)
+  - `AppSettings`: Last-Layout-Pfad + vorbereitende Kamera-Defaults (V600/SMTAV Host+Port)
+- Core-Services erweitert:
+  - `LayoutFileService`: `LoadLayoutAsync` / `SaveLayoutAsync` (UTF-8, WriteIndented, Temp+Backup)
+  - `SettingsFileService`: `LoadAppSettingsAsync` / `SaveAppSettingsAsync` (UTF-8, WriteIndented)
+- MAUI minimal angebunden:
+  - `SettingsPage` lädt/speichert `appsettings.json` in `FileSystem.AppDataDirectory`
+  - keine Dateiauswahl und kein Auto-Load beim Start fest verdrahtet (nur vorbereitet)
+- Dokumentation aktualisiert: klare Trennung Layout-Datei vs. App-Settings-Datei
+
+### Ergebnis
+- Technische Grundlage für externe Layoutdatei (JSON) vorhanden und dokumentiert
+- App-Settings können in der MAUI-App gespeichert und wieder geladen werden
+- Kein Layout-Designer/Editor und keine Kamera-Runtime implementiert (bewusst)
+
+### Offene Punkte für den nächsten Block
+- Auto-Load beim App-Start (auf Basis `LastLayoutFilePath`) verdrahten
+- Layout-Import/Export/"Speichern unter" vorbereiten
+- Layout-Designer technisch beginnen
+
 ## 2026-03-28 – Block 1b: CameraProfile und erster Remote-Commit
 ### Ausgangslage
 - Lokale Projektbasis vollständig und buildfähig, aber noch nie ins Remote-Repository committed
