@@ -7,4 +7,5 @@ public sealed class AppSessionState
     public AppSettings Settings { get; set; } = new();
     public LayoutDocument? Layout { get; set; }
     public string StatusMessage { get; set; } = "App wird initialisiert ...";
+    public string? SelectedBlockId { get; set; }
 }

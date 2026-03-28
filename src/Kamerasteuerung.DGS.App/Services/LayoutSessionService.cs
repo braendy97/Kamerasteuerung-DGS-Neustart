@@ -17,6 +17,64 @@ public sealed class LayoutSessionService
         _settingsFileService = settingsFileService;
     }
 
+    public bool AddBlock()
+    {
+        if (_state.Layout is null)
+        {
+            _state.StatusMessage = "Kein Layout geladen";
+            return false;
+        }
+
+        var nextNumber = _state.Layout.Blocks.Count + 1;
+        var offset = (_state.Layout.Blocks.Count % 10) * 20;
+
+        var block = new LayoutBlock
+        {
+            Name = $"Block {nextNumber}",
+            X = 50 + offset,
+            Y = 50 + offset,
+            Width = 300,
+            Height = 200,
+            RotationDegrees = 0
+        };
+
+        _state.Layout.Blocks.Add(block);
+        _state.SelectedBlockId = block.Id;
+        _state.StatusMessage = "Block hinzugefügt";
+        return true;
+    }
+
+    public void SelectBlock(string? blockId)
+    {
+        _state.SelectedBlockId = blockId;
+    }
+
+    public bool DeleteSelectedBlock()
+    {
+        if (_state.Layout is null)
+        {
+            _state.StatusMessage = "Kein Layout geladen";
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(_state.SelectedBlockId))
+        {
+            _state.StatusMessage = "Kein Block ausgewählt";
+            return false;
+        }
+
+        var removed = _state.Layout.Blocks.RemoveAll(b => b.Id == _state.SelectedBlockId);
+        if (removed > 0)
+        {
+            _state.SelectedBlockId = null;
+            _state.StatusMessage = "Block gelöscht";
+            return true;
+        }
+
+        _state.StatusMessage = "Block nicht gefunden";
+        return false;
+    }
+
     public void CreateNewLayout()
     {
         _state.Layout = new LayoutDocument
@@ -30,6 +88,7 @@ public sealed class LayoutSessionService
             LastUpdatedUtc = DateTime.UtcNow
         };
 
+        _state.SelectedBlockId = null;
         _state.StatusMessage = "Neues Layout erstellt";
     }
 

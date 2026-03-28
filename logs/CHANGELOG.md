@@ -27,6 +27,14 @@
   - leerer Zustand vs. geladener Zustand klar unterscheidbar
   - sachliche Layout-Zusammenfassung (Name, Größe, Counts)
 
+## [0.8.0] - 2026-03-28
+### Hinzugefügt
+- Erste feste Layout-Blöcke im Designer:
+  - Block hinzufügen (Default-Position/Größe, automatische Namen)
+  - Blockliste mit Auswahl
+  - einfache Darstellung als Rechtecke im Arbeitsfeld (skalierungs-respektierend)
+  - optionales Löschen des ausgewählten Blocks
+
 ## [0.3.0] - 2026-03-28
 ### Hinzugefügt
 - `Models/CameraProfile.cs` – Kamera-Konfigurationsmodell mit Name, Host, Port, PresetStart, PresetEnd, SupportsTracking, CameraType

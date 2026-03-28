@@ -40,6 +40,7 @@ public partial class LayoutDesignerPage : ContentPage
 
         NoLayoutFrame.IsVisible = _state.Layout is null;
         LayoutSummaryFrame.IsVisible = _state.Layout is not null;
+        BlocksFrame.IsVisible = _state.Layout is not null;
         WorkAreaFrame.IsVisible = _state.Layout is not null;
 
         if (_state.Layout is null)
@@ -56,9 +57,83 @@ public partial class LayoutDesignerPage : ContentPage
         var (displayWidth, displayHeight, scale) = ComputeWorkAreaSize(canvasWidth, canvasHeight);
         WorkAreaBorder.WidthRequest = displayWidth;
         WorkAreaBorder.HeightRequest = displayHeight;
+        BlocksOverlay.WidthRequest = displayWidth;
+        BlocksOverlay.HeightRequest = displayHeight;
         WorkAreaScaleLabel.Text = scale >= 1.0
             ? "Darstellung: 1:1"
             : $"Darstellung skaliert: {scale * 100:0}%";
+
+        RefreshBlocksList(scale);
+        RenderBlocks(scale);
+    }
+
+    private sealed class BlockListItem
+    {
+        public required string Id { get; init; }
+        public required string Name { get; init; }
+        public required string Details { get; init; }
+        public required string SelectedMarker { get; init; }
+    }
+
+    private void RefreshBlocksList(double scale)
+    {
+        if (_state.Layout is null)
+        {
+            BlocksCollectionView.ItemsSource = null;
+            return;
+        }
+
+        var selectedId = _state.SelectedBlockId;
+        var items = _state.Layout.Blocks
+            .Select(b => new BlockListItem
+            {
+                Id = b.Id,
+                Name = b.Name,
+                Details = $"Pos: {b.X:0},{b.Y:0} | Größe: {b.Width:0}×{b.Height:0}",
+                SelectedMarker = b.Id == selectedId ? "Ausgewählt" : string.Empty
+            })
+            .ToList();
+
+        BlocksCollectionView.ItemsSource = items;
+        BlocksCollectionView.SelectedItem = items.FirstOrDefault(i => i.Id == selectedId);
+    }
+
+    private void RenderBlocks(double scale)
+    {
+        BlocksOverlay.Children.Clear();
+
+        if (_state.Layout is null)
+        {
+            return;
+        }
+
+        var selectedId = _state.SelectedBlockId;
+
+        foreach (var block in _state.Layout.Blocks)
+        {
+            var border = new Border
+            {
+                Stroke = block.Id == selectedId ? Colors.Red : Colors.DarkSlateGray,
+                StrokeThickness = block.Id == selectedId ? 3 : 1,
+                BackgroundColor = Color.FromArgb("#CCFFFFFF"),
+                Content = new Label
+                {
+                    Text = block.Name,
+                    FontSize = 12,
+                    HorizontalTextAlignment = TextAlignment.Center,
+                    VerticalTextAlignment = TextAlignment.Center,
+                    LineBreakMode = LineBreakMode.TailTruncation
+                }
+            };
+
+            var x = block.X * scale;
+            var y = block.Y * scale;
+            var w = Math.Max(20, block.Width * scale);
+            var h = Math.Max(20, block.Height * scale);
+
+            AbsoluteLayout.SetLayoutBounds(border, new Rect(x, y, w, h));
+            BlocksOverlay.Children.Add(border);
+        }
     }
 
     private static (double width, double height, double scale) ComputeWorkAreaSize(double canvasWidth, double canvasHeight)
@@ -76,6 +151,32 @@ public partial class LayoutDesignerPage : ContentPage
     private void OnNewLayoutClicked(object sender, EventArgs e)
     {
         _layoutSession.CreateNewLayout();
+        Refresh();
+    }
+
+    private void OnAddBlockClicked(object sender, EventArgs e)
+    {
+        _layoutSession.AddBlock();
+        Refresh();
+    }
+
+    private void OnDeleteBlockClicked(object sender, EventArgs e)
+    {
+        _layoutSession.DeleteSelectedBlock();
+        Refresh();
+    }
+
+    private void OnBlockSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (e.CurrentSelection.FirstOrDefault() is BlockListItem item)
+        {
+            _layoutSession.SelectBlock(item.Id);
+        }
+        else
+        {
+            _layoutSession.SelectBlock(null);
+        }
+
         Refresh();
     }
 

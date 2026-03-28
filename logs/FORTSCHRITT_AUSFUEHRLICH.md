@@ -171,6 +171,31 @@
 - Erste echte Platzierungs-/Bearbeitungslogik (z. B. Blöcke/Sitze anzeigen)
 - Drag & Drop / freie Positionierung (später)
 
+## 2026-03-28 – Block 6: Erste Layout-Blöcke (anlegen/anzeigen/auswählen/löschen)
+### Ausgangslage
+- Arbeitsfläche war sichtbar, aber ohne erste fachliche Elemente im Layout.
+- `LayoutDocument.Blocks` wurde noch nicht über UI genutzt.
+
+### Durchgeführte Änderungen
+- Minimaler Auswahlzustand: `AppSessionState.SelectedBlockId`.
+- `LayoutSessionService` erweitert:
+  - `AddBlock()` erzeugt neue `LayoutBlock` mit Defaults, versetzt, speichert direkt in `LayoutDocument.Blocks`
+  - `SelectBlock(...)` setzt Auswahl
+  - `DeleteSelectedBlock()` löscht den ausgewählten Block
+- `LayoutDesignerPage` erweitert:
+  - Button "Block hinzufügen"
+  - Blockliste (Name/Position/Größe) mit Auswahl
+  - Button "Block löschen" (wirkt auf Auswahl)
+  - Rendering im Arbeitsfeld als einfache Rechtecke (inkl. Blockname, Auswahl-Highlight)
+
+### Ergebnis
+- Erste sichtbare Layout-Elemente (Blöcke) sind im Designer vorhanden.
+- Änderungen landen im aktuellen `LayoutDocument` und können über den bestehenden Speichern-Flow persistiert werden.
+
+### Offene Punkte für den nächsten Block
+- Sitze/Plätze als nächste Elemente (optional)
+- Bearbeitung von Block-Attributen (Name/Größe/Position) ohne Drag & Drop (z. B. via Eingabefelder)
+
 ## 2026-03-28 – Block 1b: CameraProfile und erster Remote-Commit
 ### Ausgangslage
 - Lokale Projektbasis vollständig und buildfähig, aber noch nie ins Remote-Repository committed
