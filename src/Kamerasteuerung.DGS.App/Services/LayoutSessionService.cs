@@ -20,6 +20,94 @@ public sealed class LayoutSessionService
         _settingsFileService = settingsFileService;
     }
 
+    public bool SetSelectedBlockPresetsFromStart(int startPreset)
+    {
+        if (_state.Layout is null)
+        {
+            _state.StatusMessage = "Kein Layout geladen";
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(_state.SelectedBlockId))
+        {
+            _state.StatusMessage = "Kein Block ausgewählt";
+            return false;
+        }
+
+        if (startPreset < UserPresetStart || startPreset > UserPresetEnd)
+        {
+            _state.StatusMessage = $"Start-Preset ungültig (erlaubt: {UserPresetStart}–{UserPresetEnd})";
+            return false;
+        }
+
+        var block = _state.Layout.Blocks.FirstOrDefault(b => b.Id == _state.SelectedBlockId);
+        if (block is null)
+        {
+            _state.StatusMessage = "Block nicht gefunden";
+            return false;
+        }
+
+        var seats = _state.Layout.Seats
+            .Where(s => s.BlockId == block.Id)
+            .OrderBy(s => s.SortOrder)
+            .ThenBy(s => s.Y)
+            .ThenBy(s => s.X)
+            .ThenBy(s => s.Label)
+            .ToList();
+
+        var preset = startPreset;
+        var setCount = 0;
+        var overflowCount = 0;
+
+        foreach (var seat in seats)
+        {
+            if (preset > UserPresetEnd)
+            {
+                seat.PresetNumber = 0;
+                overflowCount++;
+                continue;
+            }
+
+            seat.PresetNumber = preset;
+            preset++;
+            setCount++;
+        }
+
+        _state.StatusMessage = overflowCount == 0
+            ? $"Block-Presets gesetzt ab {startPreset} ({setCount} Sitze)"
+            : $"Block-Presets gesetzt ab {startPreset} ({setCount} Sitze) | Überlauf: {overflowCount} → 0";
+
+        return true;
+    }
+
+    public bool SetSeatPreset(string seatId, int presetNumber)
+    {
+        if (_state.Layout is null)
+        {
+            _state.StatusMessage = "Kein Layout geladen";
+            return false;
+        }
+
+        if (presetNumber != 0 && (presetNumber < UserPresetStart || presetNumber > UserPresetEnd))
+        {
+            _state.StatusMessage = $"Preset ungültig (erlaubt: 0 oder {UserPresetStart}–{UserPresetEnd})";
+            return false;
+        }
+
+        var seat = _state.Layout.Seats.FirstOrDefault(s => s.Id == seatId);
+        if (seat is null)
+        {
+            _state.StatusMessage = "Sitz nicht gefunden";
+            return false;
+        }
+
+        seat.PresetNumber = presetNumber;
+        _state.StatusMessage = presetNumber == 0
+            ? "Sitz-Preset entfernt (0)"
+            : $"Sitz-Preset gesetzt: {presetNumber}";
+        return true;
+    }
+
     public bool GenerateSeatsForSelectedBlock(bool overwriteExisting = true)
     {
         if (_state.Layout is null)

@@ -8,4 +8,5 @@ public sealed class AppSessionState
     public LayoutDocument? Layout { get; set; }
     public string StatusMessage { get; set; } = "App wird initialisiert ...";
     public string? SelectedBlockId { get; set; }
+    public string? SelectedSeatId { get; set; }
 }

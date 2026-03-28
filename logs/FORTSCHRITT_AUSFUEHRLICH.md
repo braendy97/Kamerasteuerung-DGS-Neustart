@@ -294,6 +294,38 @@
 - Optional: Presetnummern direkt an Sitzen im Arbeitsfeld sparsam anzeigen.
 - Spätere Persistenz/Kompatibilitätsregeln, falls Presets manuell editierbar werden.
 
+## 2026-03-28 – Preset-Vergabe 2: Manuelle Korrektur (Blockweise + einzelner Sitz)
+### Ausgangslage
+- Zentrale Preset-Neuvergabe und Diagnose waren vorhanden.
+- Es fehlte jedoch eine kontrollierte, manuelle Korrekturmöglichkeit auf Block- und Sitzebene.
+
+### Fachliche Regeln (dieser Block)
+- Nutzerbereich 10–210.
+- `0` bleibt „nicht zugewiesen“.
+- Manuelle Änderungen dürfen Konflikte erzeugen; es gibt keine heimliche Konfliktbereinigung.
+- Weiterhin keine VISCA-Kommunikation.
+
+### Durchgeführte Änderungen
+- Auswahlzustand erweitert:
+  - `AppSessionState.SelectedSeatId` ergänzt (ein ausgewählter Sitz)
+- `LayoutSessionService` erweitert:
+  - `SetSelectedBlockPresetsFromStart(int startPreset)` setzt im ausgewählten Block sequentielle Presets ab Startnummer (Überlauf → 0)
+  - `SetSeatPreset(string seatId, int presetNumber)` setzt ein Preset am Sitz (akzeptiert 0 oder 10–210; sonst Statusmeldung)
+- `LayoutDesignerPage` erweitert:
+  - Sitzliste für den ausgewählten Block (Label + Preset; Konfliktmarker bei Dubletten/ungültigen Werten)
+  - UI für Blockweise Neubelegung (Start-Preset + Button)
+  - UI für Sitz-Preset setzen (Sitz-Auswahl + Eingabe + Button)
+  - optionales Highlight des ausgewählten Sitzes im Arbeitsfeld (dezente Rahmenfarbe)
+
+### Ergebnis
+- Presets können gezielt blockweise neu gesetzt werden, ohne globale Neuvergabe.
+- Einzelne Sitz-Presets sind manuell korrigierbar.
+- Diagnose/Status aktualisiert sich danach sauber und Konflikte bleiben sichtbar.
+
+### Offene Punkte für den nächsten Block
+- Optional: bessere Konfliktanzeige (z. B. genaue Dubletten-Nummern / betroffene Sitze).
+- Optional: Preset-Startwert als Default automatisch vorschlagen (z. B. erster freier Preset).
+
 ## 2026-03-28 – Block 1b: CameraProfile und erster Remote-Commit
 ### Ausgangslage
 - Lokale Projektbasis vollständig und buildfähig, aber noch nie ins Remote-Repository committed

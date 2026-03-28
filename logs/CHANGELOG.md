@@ -64,6 +64,14 @@
 ### Geändert
 - Sitzgenerierung delegiert Presetvergabe an die zentrale Neuvergabe (keine lokale Nebenlogik mehr)
 
+## [0.12.0] - 2026-03-28
+### Hinzugefügt
+- Manuelle Preset-Korrektur im Designer:
+  - Sitzliste für den ausgewählten Block (zeigt Label + Preset; Konfliktmarker bei Dubletten/ungültigen Presets)
+  - Blockweise Neubelegung ab Startnummer (nur ausgewählter Block; Überlauf → 0)
+  - manuelles Setzen eines einzelnen Sitz-Presets (akzeptiert 0 oder 10–210; keine automatische Konfliktbereinigung)
+- Minimaler Sitzauswahl-State in `AppSessionState` (`SelectedSeatId`)
+
 ## [0.3.0] - 2026-03-28
 ### Hinzugefügt
 - `Models/CameraProfile.cs` – Kamera-Konfigurationsmodell mit Name, Host, Port, PresetStart, PresetEnd, SupportsTracking, CameraType

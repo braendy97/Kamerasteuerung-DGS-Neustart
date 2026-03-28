@@ -8,6 +8,8 @@ public partial class LayoutDesignerPage : ContentPage
     private readonly Services.LayoutSessionService _layoutSession;
     private readonly IDispatcherTimer _timer;
 
+    private const string ConflictMarker = "⚠";
+
     public LayoutDesignerPage(Services.AppSessionState state, Services.LayoutSessionService layoutSession)
     {
         InitializeComponent();
@@ -69,7 +71,94 @@ public partial class LayoutDesignerPage : ContentPage
         RefreshSeatsSummary();
         RefreshPresetSummary();
         RefreshSelectedBlockCameraType();
+        RefreshSeatsList();
+        RefreshSelectedSeat();
         RenderBlocksAndSeats(scale);
+    }
+
+    private sealed class SeatListItem
+    {
+        public required string Id { get; init; }
+        public required string Name { get; init; }
+        public required string Details { get; init; }
+        public required string Marker { get; init; }
+    }
+
+    private void RefreshSeatsList()
+    {
+        if (_state.Layout is null)
+        {
+            NoBlockSelectedFrame.IsVisible = false;
+            SeatsCollectionView.ItemsSource = null;
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(_state.SelectedBlockId))
+        {
+            NoBlockSelectedFrame.IsVisible = true;
+            SeatsCollectionView.ItemsSource = null;
+            return;
+        }
+
+        NoBlockSelectedFrame.IsVisible = false;
+
+        var diag = _layoutSession.GetPresetDiagnostics(_state.SelectedBlockId);
+        var conflictSeatIds = GetConflictSeatIds();
+
+        var items = _state.Layout.Seats
+            .Where(s => s.BlockId == _state.SelectedBlockId)
+            .OrderBy(s => s.SortOrder)
+            .ThenBy(s => s.Y)
+            .ThenBy(s => s.X)
+            .ThenBy(s => s.Label)
+            .Select(s => new SeatListItem
+            {
+                Id = s.Id,
+                Name = string.IsNullOrWhiteSpace(s.Label) ? s.Id : s.Label,
+                Details = $"Preset: {s.PresetNumber}",
+                Marker = conflictSeatIds.Contains(s.Id)
+                    ? ConflictMarker
+                    : (s.PresetNumber == 0 ? "" : (s.PresetNumber >= Services.LayoutSessionService.UserPresetStart && s.PresetNumber <= Services.LayoutSessionService.UserPresetEnd ? "" : ConflictMarker))
+            })
+            .ToList();
+
+        SeatsCollectionView.ItemsSource = items;
+        SeatsCollectionView.SelectedItem = items.FirstOrDefault(i => i.Id == _state.SelectedSeatId);
+    }
+
+    private void RefreshSelectedSeat()
+    {
+        if (_state.Layout is null || string.IsNullOrWhiteSpace(_state.SelectedSeatId))
+        {
+            SelectedSeatLabel.Text = "Ausgewählter Sitz: (keiner)";
+            return;
+        }
+
+        var seat = _state.Layout.Seats.FirstOrDefault(s => s.Id == _state.SelectedSeatId);
+        if (seat is null)
+        {
+            SelectedSeatLabel.Text = "Ausgewählter Sitz: (nicht gefunden)";
+            return;
+        }
+
+        SelectedSeatLabel.Text = $"Ausgewählter Sitz: {seat.Label} | Preset: {seat.PresetNumber}";
+    }
+
+    private HashSet<string> GetConflictSeatIds()
+    {
+        if (_state.Layout is null)
+        {
+            return [];
+        }
+
+        static bool IsValidUserPreset(int preset) => preset >= Services.LayoutSessionService.UserPresetStart && preset <= Services.LayoutSessionService.UserPresetEnd;
+
+        var validSeats = _state.Layout.Seats.Where(s => IsValidUserPreset(s.PresetNumber)).ToList();
+        return validSeats
+            .GroupBy(s => s.PresetNumber)
+            .Where(g => g.Count() > 1)
+            .SelectMany(g => g.Select(s => s.Id))
+            .ToHashSet();
     }
 
     private void RefreshPresetSummary()
@@ -241,8 +330,8 @@ public partial class LayoutDesignerPage : ContentPage
             {
                 var seatBorder = new Border
                 {
-                    Stroke = Colors.DimGray,
-                    StrokeThickness = 1,
+                    Stroke = seat.Id == _state.SelectedSeatId ? Colors.OrangeRed : Colors.DimGray,
+                    StrokeThickness = seat.Id == _state.SelectedSeatId ? 2 : 1,
                     BackgroundColor = Color.FromArgb("#B3FFFDE7")
                 };
 
@@ -316,12 +405,61 @@ public partial class LayoutDesignerPage : ContentPage
         if (e.CurrentSelection.FirstOrDefault() is BlockListItem item)
         {
             _layoutSession.SelectBlock(item.Id);
+            _state.SelectedSeatId = null;
         }
         else
         {
             _layoutSession.SelectBlock(null);
+            _state.SelectedSeatId = null;
         }
 
+        Refresh();
+    }
+
+    private void OnSeatSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (e.CurrentSelection.FirstOrDefault() is SeatListItem item)
+        {
+            _state.SelectedSeatId = item.Id;
+        }
+        else
+        {
+            _state.SelectedSeatId = null;
+        }
+
+        Refresh();
+    }
+
+    private void OnSetBlockPresetsClicked(object sender, EventArgs e)
+    {
+        if (!int.TryParse(BlockPresetStartEntry.Text, out var startPreset))
+        {
+            _state.StatusMessage = "Start-Preset ungültig";
+            Refresh();
+            return;
+        }
+
+        _layoutSession.SetSelectedBlockPresetsFromStart(startPreset);
+        Refresh();
+    }
+
+    private void OnSetSeatPresetClicked(object sender, EventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(_state.SelectedSeatId))
+        {
+            _state.StatusMessage = "Kein Sitz ausgewählt";
+            Refresh();
+            return;
+        }
+
+        if (!int.TryParse(SeatPresetEntry.Text, out var preset))
+        {
+            _state.StatusMessage = "Sitz-Preset ungültig";
+            Refresh();
+            return;
+        }
+
+        _layoutSession.SetSeatPreset(_state.SelectedSeatId, preset);
         Refresh();
     }
 
