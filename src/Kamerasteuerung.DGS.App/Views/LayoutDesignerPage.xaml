@@ -91,6 +91,31 @@
                         </VerticalStackLayout>
                     </Frame>
 
+                    <Frame Padding="10" BorderColor="#DDDDDD">
+                        <VerticalStackLayout Spacing="8">
+                            <HorizontalStackLayout Spacing="10">
+                                <Label Text="Preset-Übersicht (exportierbar)" FontAttributes="Bold" VerticalOptions="Center" />
+                                <Button Text="Übersicht aktualisieren" Clicked="OnRefreshPresetOverviewClicked" />
+                            </HorizontalStackLayout>
+                            <Label x:Name="PresetOverviewSummaryLabel" Text="" FontSize="12" TextColor="Gray" />
+
+                            <CollectionView x:Name="PresetOverviewCollectionView" HeightRequest="240">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Padding="6" ColumnDefinitions="*,*,Auto,Auto" RowDefinitions="Auto">
+                                            <Label Text="{Binding Block}" FontAttributes="Bold" />
+                                            <Label Grid.Column="1" Text="{Binding Seat}" />
+                                            <Label Grid.Column="2" Text="{Binding Preset}" />
+                                            <Label Grid.Column="3" Text="{Binding Status}" FontSize="12" TextColor="Gray" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+
+                            <Editor x:Name="PresetOverviewTextEditor" AutoSize="TextChanges" IsReadOnly="True" HeightRequest="140" FontSize="12" />
+                        </VerticalStackLayout>
+                    </Frame>
+
                     <CollectionView x:Name="BlocksCollectionView" SelectionMode="Single" SelectionChanged="OnBlockSelectionChanged">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>

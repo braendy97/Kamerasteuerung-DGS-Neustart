@@ -13,6 +13,9 @@ public sealed class LayoutSessionService
     public const int UserPresetStart = 10;
     public const int UserPresetEnd = 210;
 
+    public PresetOverview? CurrentPresetOverview { get; private set; }
+    public string PresetOverviewText { get; private set; } = string.Empty;
+
     public LayoutSessionService(AppSessionState state, LayoutFileService layoutFileService, SettingsFileService settingsFileService)
     {
         _state = state;
@@ -266,6 +269,171 @@ public sealed class LayoutSessionService
 
         _state.StatusMessage = "Presets neu berechnet";
         return true;
+    }
+
+    public PresetOverview? BuildPresetOverview(bool setAsCurrent = true)
+    {
+        if (_state.Layout is null)
+        {
+            CurrentPresetOverview = null;
+            PresetOverviewText = string.Empty;
+            return null;
+        }
+
+        static bool IsValidUserPreset(int preset) => preset >= UserPresetStart && preset <= UserPresetEnd;
+
+        var seats = _state.Layout.Seats;
+        var validSeats = seats.Where(s => IsValidUserPreset(s.PresetNumber)).ToList();
+        var conflictPresetNumbers = validSeats
+            .GroupBy(s => s.PresetNumber)
+            .Where(g => g.Count() > 1)
+            .Select(g => g.Key)
+            .ToHashSet();
+
+        var orderedBlocks = _state.Layout.Blocks
+            .OrderBy(b => b.PresetPriority)
+            .ThenBy(b => b.Y)
+            .ThenBy(b => b.X)
+            .ThenBy(b => b.Name)
+            .ToList();
+
+        var blockNameById = orderedBlocks.ToDictionary(b => b.Id, b => b.Name);
+        var blockById = orderedBlocks.ToDictionary(b => b.Id, b => b);
+
+        var blockSummaries = orderedBlocks
+            .Select(b =>
+            {
+                var blockValidPresets = seats
+                    .Where(s => s.BlockId == b.Id && IsValidUserPreset(s.PresetNumber))
+                    .Select(s => s.PresetNumber)
+                    .Order()
+                    .ToList();
+
+                return new PresetBlockStatusSummary
+                {
+                    BlockId = b.Id,
+                    BlockName = b.Name,
+                    CameraType = b.CameraType,
+                    PresetPriority = b.PresetPriority,
+                    SeatCount = seats.Count(s => s.BlockId == b.Id),
+                    FirstValidPreset = blockValidPresets.Count == 0 ? null : blockValidPresets.First(),
+                    LastValidPreset = blockValidPresets.Count == 0 ? null : blockValidPresets.Last()
+                };
+            })
+            .ToList();
+
+        var seatEntries = new List<PresetSeatStatusEntry>();
+
+        foreach (var block in orderedBlocks)
+        {
+            var blockSeats = seats
+                .Where(s => s.BlockId == block.Id)
+                .OrderBy(s => s.SortOrder)
+                .ThenBy(s => s.Y)
+                .ThenBy(s => s.X)
+                .ThenBy(s => s.Label)
+                .ToList();
+
+            foreach (var seat in blockSeats)
+            {
+                var status = PresetSeatStatus.None;
+                if (IsValidUserPreset(seat.PresetNumber))
+                {
+                    status = conflictPresetNumbers.Contains(seat.PresetNumber)
+                        ? PresetSeatStatus.Conflict
+                        : PresetSeatStatus.Valid;
+                }
+                else if (seat.PresetNumber != 0)
+                {
+                    status = PresetSeatStatus.Invalid;
+                }
+
+                seatEntries.Add(new PresetSeatStatusEntry
+                {
+                    SeatId = seat.Id,
+                    SeatLabel = string.IsNullOrWhiteSpace(seat.Label) ? seat.Id : seat.Label,
+                    BlockId = block.Id,
+                    BlockName = block.Name,
+                    BlockCameraType = block.CameraType,
+                    BlockPresetPriority = block.PresetPriority,
+                    PresetNumber = seat.PresetNumber,
+                    Status = status
+                });
+            }
+        }
+
+        // Seats, die nicht sauber einem Block zugeordnet sind, trotzdem exportierbar aufführen.
+        var unassignedSeats = seats
+            .Where(s => string.IsNullOrWhiteSpace(s.BlockId) || !blockNameById.ContainsKey(s.BlockId))
+            .OrderBy(s => s.SortOrder)
+            .ThenBy(s => s.Y)
+            .ThenBy(s => s.X)
+            .ThenBy(s => s.Label)
+            .ToList();
+
+        foreach (var seat in unassignedSeats)
+        {
+            var status = PresetSeatStatus.None;
+            if (IsValidUserPreset(seat.PresetNumber))
+            {
+                status = conflictPresetNumbers.Contains(seat.PresetNumber)
+                    ? PresetSeatStatus.Conflict
+                    : PresetSeatStatus.Valid;
+            }
+            else if (seat.PresetNumber != 0)
+            {
+                status = PresetSeatStatus.Invalid;
+            }
+
+            var blockId = seat.BlockId ?? string.Empty;
+            seatEntries.Add(new PresetSeatStatusEntry
+            {
+                SeatId = seat.Id,
+                SeatLabel = string.IsNullOrWhiteSpace(seat.Label) ? seat.Id : seat.Label,
+                BlockId = blockId,
+                BlockName = string.IsNullOrWhiteSpace(blockId) ? "(ohne Block)" : "(unbekannter Block)",
+                BlockCameraType = string.IsNullOrWhiteSpace(blockId) || !blockById.TryGetValue(blockId, out var b) ? null : b.CameraType,
+                BlockPresetPriority = string.IsNullOrWhiteSpace(blockId) || !blockById.TryGetValue(blockId, out var b2) ? int.MaxValue : b2.PresetPriority,
+                PresetNumber = seat.PresetNumber,
+                Status = status
+            });
+        }
+
+        var overview = new PresetOverview
+        {
+            PresetStart = UserPresetStart,
+            PresetEnd = UserPresetEnd,
+            Blocks = blockSummaries,
+            Seats = seatEntries
+        };
+
+        var lines = new List<string>
+        {
+            $"Preset-Übersicht (Nutzerbereich {UserPresetStart}–{UserPresetEnd}, 0=nicht zugewiesen)",
+            $"Layout: {_state.Layout.Name}",
+            string.Empty,
+            "Block | Sitz | Kameraart | Preset | Status"
+        };
+
+        foreach (var s in overview.Seats)
+        {
+            var cam = s.BlockCameraType switch
+            {
+                CameraType.AudienceV600 => "Zuschauer",
+                CameraType.StageSmtavV60XL => "Bühne",
+                _ => "(keine)"
+            };
+
+            lines.Add($"{s.BlockName} | {s.SeatLabel} | {cam} | {s.PresetNumber} | {s.Status}");
+        }
+
+        if (setAsCurrent)
+        {
+            CurrentPresetOverview = overview;
+            PresetOverviewText = string.Join(Environment.NewLine, lines);
+        }
+
+        return overview;
     }
 
     public PresetDiagnostics GetPresetDiagnostics(string? selectedBlockId = null)

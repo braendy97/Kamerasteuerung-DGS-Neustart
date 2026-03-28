@@ -9,6 +9,7 @@ public partial class LayoutDesignerPage : ContentPage
     private readonly IDispatcherTimer _timer;
 
     private const string ConflictMarker = "⚠";
+    private const string ValidMarker = "✓";
 
     public LayoutDesignerPage(Services.AppSessionState state, Services.LayoutSessionService layoutSession)
     {
@@ -71,11 +72,66 @@ public partial class LayoutDesignerPage : ContentPage
         RefreshSeatsSummary();
         RefreshPresetSummary();
         RefreshAssignmentOrder();
+        RefreshPresetOverview();
         RefreshSelectedBlockCameraType();
         RefreshSelectedBlockPresetPriority();
         RefreshSeatsList();
         RefreshSelectedSeat();
         RenderBlocksAndSeats(scale);
+    }
+
+    private sealed class PresetOverviewListItem
+    {
+        public required string Block { get; init; }
+        public required string Seat { get; init; }
+        public required string Preset { get; init; }
+        public required string Status { get; init; }
+    }
+
+    private void RefreshPresetOverview()
+    {
+        if (_state.Layout is null)
+        {
+            PresetOverviewSummaryLabel.Text = string.Empty;
+            PresetOverviewCollectionView.ItemsSource = null;
+            PresetOverviewTextEditor.Text = string.Empty;
+            return;
+        }
+
+        var overview = _layoutSession.BuildPresetOverview(setAsCurrent: true);
+        if (overview is null)
+        {
+            PresetOverviewSummaryLabel.Text = "(keine Daten)";
+            PresetOverviewCollectionView.ItemsSource = null;
+            PresetOverviewTextEditor.Text = string.Empty;
+            return;
+        }
+
+        var items = overview.Seats
+            .Select(s => new PresetOverviewListItem
+            {
+                Block = s.BlockName,
+                Seat = s.SeatLabel,
+                Preset = s.PresetNumber.ToString(),
+                Status = s.Status switch
+                {
+                    Services.PresetSeatStatus.Valid => ValidMarker,
+                    Services.PresetSeatStatus.Conflict => ConflictMarker,
+                    Services.PresetSeatStatus.Invalid => "ungültig",
+                    _ => ""
+                }
+            })
+            .ToList();
+
+        PresetOverviewCollectionView.ItemsSource = items;
+
+        var validCount = overview.Seats.Count(s => s.Status == Services.PresetSeatStatus.Valid);
+        var conflictCount = overview.Seats.Count(s => s.Status == Services.PresetSeatStatus.Conflict);
+        var invalidCount = overview.Seats.Count(s => s.Status == Services.PresetSeatStatus.Invalid);
+        var noneCount = overview.Seats.Count(s => s.Status == Services.PresetSeatStatus.None);
+
+        PresetOverviewSummaryLabel.Text = $"Sitze: {overview.Seats.Count} | gültig: {validCount} | Konflikt: {conflictCount} | ungültig: {invalidCount} | 0/leer: {noneCount}";
+        PresetOverviewTextEditor.Text = _layoutSession.PresetOverviewText;
     }
 
     private void RefreshAssignmentOrder()
@@ -464,6 +520,13 @@ public partial class LayoutDesignerPage : ContentPage
     private void OnReassignPresetsClicked(object sender, EventArgs e)
     {
         _layoutSession.ReassignUserPresets();
+        Refresh();
+    }
+
+    private void OnRefreshPresetOverviewClicked(object sender, EventArgs e)
+    {
+        _layoutSession.BuildPresetOverview(setAsCurrent: true);
+        _state.StatusMessage = "Preset-Übersicht aktualisiert";
         Refresh();
     }
 

@@ -80,6 +80,13 @@
 - Designer: effektive Vergabereihenfolge sichtbar (Liste + Blockdetails inkl. Prio und Preset-Range)
 - Setzen der Priorität am ausgewählten Block (ohne automatische Neuvergabe)
 
+## [0.14.0] - 2026-03-28
+### Hinzugefügt
+- Exportierbarer Preset-Status (ohne VISCA):
+  - zentrale Erzeugung einer Preset-Übersicht aus dem aktuellen Layout (Blocks + Seats inkl. Status: gültig/ungültig/Konflikt)
+  - sortiert nach effektiver Vergabereihenfolge (Block: Priorität/Y/X/Name, Sitze: SortOrder/Y/X/Label)
+- Designer: sachliche Preset-Übersicht (Liste + Textvorschau) + Button zum Aktualisieren
+
 ## [0.3.0] - 2026-03-28
 ### Hinzugefügt
 - `Models/CameraProfile.cs` – Kamera-Konfigurationsmodell mit Name, Host, Port, PresetStart, PresetEnd, SupportsTracking, CameraType

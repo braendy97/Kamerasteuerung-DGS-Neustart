@@ -356,6 +356,37 @@
 - Optional: Preset-Neuvergabe pro Kameraart getrennt (falls später fachlich nötig), ohne Regel-Explosion.
 - Optional: UI-Verbesserung (z. B. „früh/spät“ Hinweistext abhängig von Prioritätswert).
 
+## 2026-03-28 – Preset-Vergabe 4: Exportierbarer Preset-Status (Vorbereitung VISCA)
+### Ausgangslage
+- Preset-Vergabe (zentral + manuell) sowie Diagnose und Priorität waren vorhanden.
+- Für den späteren VISCA-Pfad fehlte aber eine klare, exportierbare Übersicht, die pro Sitz die Kameraart (aus Block) und den Preset-Status sauber klassifiziert.
+
+### Fachliche Regeln (dieser Block)
+- Nutzerbereich: 10–210, `0` = nicht zugewiesen/ungültig.
+- Keine VISCA-/TCP-Kommunikation, kein Senden von Presets.
+- Keine automatische Konfliktbereinigung – nur saubere Kennzeichnung.
+
+### Durchgeführte Änderungen
+- Kleine exportierbare Übersichtsdaten (DTOs) ergänzt:
+  - Seat-Einträge mit Blockbezug, Kameraart, Presetnummer und Status (gültig/ungültig/Konflikt/leer)
+  - Block-Zusammenfassungen (Name, Kameraart, Priorität, Sitzanzahl, First/Last gültig)
+- Zentrale Erzeugung im `LayoutSessionService`:
+  - `BuildPresetOverview(...)` erzeugt eine vollständige, sortierte Übersicht nach effektiver Vergabereihenfolge
+  - Textvorschau wird als String bereitgestellt (später leicht als Datei/Clipboard exportierbar)
+- UI im `LayoutDesignerPage` ergänzt:
+  - Sektion „Preset-Übersicht (exportierbar)“ mit Liste + Textvorschau
+  - Button „Übersicht aktualisieren“ (ohne Presets zu verändern)
+  - Übersicht ist nach Neuvergabe, Prioritätsänderung und manuellen Änderungen sichtbar aktuell (Refresh-Pipeline)
+
+### Ergebnis
+- Der aktuelle Preset-Status des Layouts kann zentral erzeugt und im Designer angezeigt werden.
+- Pro Sitz ist für späteren VISCA-Pfad klar: zuständige Kameraart (aus Block) + Presetnummer + Status.
+- Keine Änderungen am bestehenden Vergabe-/Korrekturverhalten; keine Kommunikation ergänzt.
+
+### Offene Punkte für den nächsten Block
+- Optional: echten Datei-Export (z. B. in AppData oder via Share/Clipboard) auf Basis der Textvorschau.
+- Optional: Filter im Designer (z. B. nur Konflikte/ungültige Werte anzeigen).
+
 ## 2026-03-28 – Block 1b: CameraProfile und erster Remote-Commit
 ### Ausgangslage
 - Lokale Projektbasis vollständig und buildfähig, aber noch nie ins Remote-Repository committed
