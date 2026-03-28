@@ -87,6 +87,13 @@
   - sortiert nach effektiver Vergabereihenfolge (Block: Priorität/Y/X/Name, Sitze: SortOrder/Y/X/Label)
 - Designer: sachliche Preset-Übersicht (Liste + Textvorschau) + Button zum Aktualisieren
 
+## [0.15.0] - 2026-03-28
+### Hinzugefügt
+- VISCA-Core (ohne Netzwerk):
+  - kleine Grundtypen für Preset-Aktionen und Build-Result (`ViscaPresetAction`, `ViscaCommandBuildResult`, `ViscaPresetCommandRequest`)
+  - zentrale Erzeugung von VISCA Preset-Befehlen aus Kameraprofil + Aktion + Presetnummer (`ViscaPresetCommandService`)
+  - Hex-Ausgabehilfe für Debug (`ViscaHex.ToHexString`)
+
 ## [0.3.0] - 2026-03-28
 ### Hinzugefügt
 - `Models/CameraProfile.cs` – Kamera-Konfigurationsmodell mit Name, Host, Port, PresetStart, PresetEnd, SupportsTracking, CameraType

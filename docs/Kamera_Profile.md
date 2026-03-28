@@ -24,3 +24,13 @@ Stattdessen erzeugt der Kamera-Core den Befehl aus:
 - Kameraprofil
 - Befehlstyp
 - Presetnummer
+
+## Technischer Stand (VISCA-Core)
+Aktuell existieren im Repository zwei Ebenen von "Profilen":
+- Layout-/App-Ebene: `Kamerasteuerung.DGS.Core.Models.CameraProfile` (Host/Port, PresetStart/End, SupportsTracking, `CameraType`)
+- VISCA-Core-Ebene: `Kamerasteuerung.DGS.Core.Profiles.CameraProfile` + `CameraDeviceType` (geräte-/protokollbezogene Fähigkeiten)
+
+Für die spätere Kamerakommunikation gilt:
+- Preset-Nummern werden fachlich im Nutzerbereich 10–210 validiert.
+- Aus einem (Model-)Kameraprofil + Preset-Aktion wird zentral ein VISCA-Befehl erzeugt.
+- Netzwerk-/TCP-Senden ist in diesem Ausbaublock noch nicht enthalten.

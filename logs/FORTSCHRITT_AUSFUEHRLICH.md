@@ -387,6 +387,36 @@
 - Optional: echten Datei-Export (z. B. in AppData oder via Share/Clipboard) auf Basis der Textvorschau.
 - Optional: Filter im Designer (z. B. nur Konflikte/ungültige Werte anzeigen).
 
+## 2026-03-28 – VISCA-Core 1: VISCA-Befehlsbasis + Preset-Befehle (ohne Netzwerk)
+### Ausgangslage
+- Layout/Presets und exportierbarer Preset-Status waren vorhanden.
+- Es fehlte jedoch eine technische Kernbasis, um spätere Kameraaktionen (z. B. Preset Recall) konsistent als VISCA-Bytebefehle erzeugen zu können.
+
+### Fachliche Regeln (dieser Block)
+- Keine echte Kamerakommunikation (kein TCP/UDP/Sockets).
+- Presetnummern im Nutzerbereich 10–210; `0`/außerhalb erzeugt keinen gültigen Befehl.
+- Unterschiede V600 vs. SMTAV V60XL nur strukturell vorbereiten.
+
+### Durchgeführte Änderungen
+- VISCA-Core-Struktur im Core ergänzt (`src/Kamerasteuerung.DGS.Core/Visca/`):
+  - `ViscaPresetAction` (Recall/Store/Clear)
+  - `ViscaCommandBuildResult` (Success/Failure ohne Exceptions nach außen)
+  - `ViscaPresetCommandRequest` als kleiner Eingabecontainer
+  - `ViscaHex.ToHexString(...)` als Debug-/Diagnosehilfe
+- Zentrale Preset-Befehlserzeugung ergänzt:
+  - `ViscaPresetCommandService.BuildPresetCommand(...)` erzeugt für gültige Presets einen VISCA-Befehl (Bytefolge)
+  - Validierung über den zentralen Nutzerbereich (`PresetRange.IsWithinUserRange`)
+  - kameratypabhängige Ableitung über bestehende Profile (`CameraType` → `CameraDeviceType` → `ViscaPresetCommandBuilder`)
+
+### Ergebnis
+- Für einen späteren Sendepfad ist eine klare zentrale Stelle vorhanden, die aus Profil+Aktion+Preset die VISCA-Bytes erzeugt.
+- Keine Netzwerk-/Kommunikationslogik implementiert.
+- Debug-Ausgabe per Hex-String ist verfügbar.
+
+### Offene Punkte für den nächsten Block
+- später: echte Transport-/TCP-Schicht + ACK/Timeout-Strategie pro Kamera.
+- später: Integration der exportierbaren Preset-Übersicht in Live-Steuerpfade (nicht im Designer).
+
 ## 2026-03-28 – Block 1b: CameraProfile und erster Remote-Commit
 ### Ausgangslage
 - Lokale Projektbasis vollständig und buildfähig, aber noch nie ins Remote-Repository committed
