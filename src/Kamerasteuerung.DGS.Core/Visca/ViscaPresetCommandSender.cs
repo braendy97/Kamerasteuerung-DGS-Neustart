@@ -16,6 +16,12 @@ public sealed class ViscaPresetCommandSender
         }
 
         var transport = await _transportService.SendAsync(cameraProfile, build.CommandBytes, transportOptions, cancellationToken);
+
+        var parsed = ViscaResponseParser.Parse(
+            transport.ResponseBytes,
+            responseReadAttempted: transport.ResponseReadAttempted,
+            isTimeout: transport.IsTimeout && transport.ResponseReadAttempted);
+
         if (!transport.IsSuccess)
         {
             var result = ViscaPresetSendResult.Failure(transport.Error ?? "Senden fehlgeschlagen", transport.IsTimeout, action, presetNumber);
@@ -25,9 +31,23 @@ public sealed class ViscaPresetCommandSender
                 CommandHex = transport.SentHex,
                 ResponseBytes = transport.ResponseBytes,
                 ResponseHex = transport.ResponseHex
+                ,
+                ResponseReadAttempted = transport.ResponseReadAttempted,
+                ResponseKind = parsed.Kind,
+                ResponseSummary = parsed.Summary,
+                ResponseErrorCode = parsed.ParsedResponse?.ErrorCode,
+                ResponseErrorDescription = parsed.ParsedResponse?.ErrorDescription
             };
         }
 
-        return ViscaPresetSendResult.Success(action, presetNumber, transport.SentBytes!, transport.ResponseBytes);
+        var success = ViscaPresetSendResult.Success(action, presetNumber, transport.SentBytes!, transport.ResponseBytes);
+        return success with
+        {
+            ResponseReadAttempted = transport.ResponseReadAttempted,
+            ResponseKind = parsed.Kind,
+            ResponseSummary = parsed.Summary,
+            ResponseErrorCode = parsed.ParsedResponse?.ErrorCode,
+            ResponseErrorDescription = parsed.ParsedResponse?.ErrorDescription
+        };
     }
 }

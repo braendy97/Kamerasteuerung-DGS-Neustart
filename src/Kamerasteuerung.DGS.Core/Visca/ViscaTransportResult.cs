@@ -14,8 +14,14 @@ public sealed class ViscaTransportResult
     public byte[]? ResponseBytes { get; init; }
     public string? ResponseHex { get; init; }
 
+    public ViscaResponseKind ResponseKind { get; init; } = ViscaResponseKind.None;
+    public string? ResponseSummary { get; init; }
+    public ViscaParsedResponse? ParsedResponse { get; init; }
+
     public static ViscaTransportResult Success(byte[] sentBytes, byte[]? responseBytes, bool responseAttempted)
     {
+        var parsed = ViscaResponseParser.Parse(responseBytes, responseAttempted, isTimeout: false);
+
         return new ViscaTransportResult
         {
             IsSuccess = true,
@@ -23,12 +29,17 @@ public sealed class ViscaTransportResult
             SentHex = ViscaHex.ToHexString(sentBytes),
             ResponseReadAttempted = responseAttempted,
             ResponseBytes = responseBytes,
-            ResponseHex = responseBytes is null ? null : ViscaHex.ToHexString(responseBytes)
+            ResponseHex = responseBytes is null ? null : ViscaHex.ToHexString(responseBytes),
+            ResponseKind = parsed.Kind,
+            ResponseSummary = parsed.Summary,
+            ParsedResponse = parsed.ParsedResponse
         };
     }
 
     public static ViscaTransportResult Failure(string error, bool isTimeout, byte[]? sentBytes, bool responseAttempted)
     {
+        var parsed = ViscaResponseParser.Parse(responseBytes: null, responseReadAttempted: responseAttempted, isTimeout: isTimeout);
+
         return new ViscaTransportResult
         {
             IsSuccess = false,
@@ -36,7 +47,10 @@ public sealed class ViscaTransportResult
             IsTimeout = isTimeout,
             SentBytes = sentBytes,
             SentHex = sentBytes is null ? null : ViscaHex.ToHexString(sentBytes),
-            ResponseReadAttempted = responseAttempted
+            ResponseReadAttempted = responseAttempted,
+            ResponseKind = parsed.Kind,
+            ResponseSummary = parsed.Summary,
+            ParsedResponse = null
         };
     }
 }

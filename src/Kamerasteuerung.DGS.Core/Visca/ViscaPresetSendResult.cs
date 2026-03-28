@@ -16,6 +16,12 @@ public sealed record ViscaPresetSendResult
     public byte[]? ResponseBytes { get; init; }
     public string? ResponseHex { get; init; }
 
+    public bool ResponseReadAttempted { get; init; }
+    public ViscaResponseKind ResponseKind { get; init; } = ViscaResponseKind.None;
+    public string? ResponseSummary { get; init; }
+    public byte? ResponseErrorCode { get; init; }
+    public string? ResponseErrorDescription { get; init; }
+
     public static ViscaPresetSendResult Failure(string error, bool isTimeout, ViscaPresetAction action, int presetNumber)
         => new()
         {
@@ -23,7 +29,8 @@ public sealed record ViscaPresetSendResult
             Error = error,
             IsTimeout = isTimeout,
             Action = action,
-            PresetNumber = presetNumber
+            PresetNumber = presetNumber,
+            ResponseKind = ViscaResponseKind.None
         };
 
     public static ViscaPresetSendResult Success(ViscaPresetAction action, int presetNumber, byte[] commandBytes, byte[]? responseBytes)
@@ -35,6 +42,7 @@ public sealed record ViscaPresetSendResult
             CommandBytes = commandBytes,
             CommandHex = ViscaHex.ToHexString(commandBytes),
             ResponseBytes = responseBytes,
-            ResponseHex = responseBytes is null ? null : ViscaHex.ToHexString(responseBytes)
+            ResponseHex = responseBytes is null ? null : ViscaHex.ToHexString(responseBytes),
+            ResponseReadAttempted = true
         };
 }

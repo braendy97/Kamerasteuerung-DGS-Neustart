@@ -445,6 +445,36 @@
 - VISCA-Core 3: ACK/Completion semantisch interpretieren (VISCA Response Parsing) + Strategie pro Kameratyp.
 - später: UI-/Live-Anbindung getrennt über einen eigenen Runtime-Layer.
 
+## 2026-03-28 – VISCA-Core 3: Response-Parsing (ACK/Completion/Error) + semantische Ergebnisse
+### Ausgangslage
+- VISCA-Preset-Befehle konnten gebaut und per TCP gesendet werden.
+- Antworten konnten optional als rohe Bytes (inkl. Hex) gelesen werden.
+- Es fehlte jedoch eine semantische Auswertung (ACK/Completion/Error) und eine saubere Unterscheidung von Timeout/keine Antwort/unknown.
+
+### Fachliche Regeln (dieser Block)
+- Keine UI-Verdrahtung.
+- Keine Retries/Strategiematrix.
+- Fokus auf kleine, robuste Response-Klassifizierung für den vorhandenen Preset-Sendepfad.
+
+### Durchgeführte Änderungen
+- VISCA-Response-Typen ergänzt:
+  - `ViscaResponseKind` (None/Ack/Completion/Error/Unknown)
+  - `ViscaParsedResponse` + `ViscaResponseParseResult`
+- Zentrale Parserlogik ergänzt (`ViscaResponseParser`):
+  - erkennt minimal die relevanten Response-Frames (ACK/Completion/Error; Frame-Ende `0xFF`)
+  - kann mehrere Frames in einem Buffer robust behandeln (bestes Frame gewinnt: Error > Completion > Ack)
+- Transport-/Send-Ergebnisse erweitert:
+  - `ViscaTransportResult` und `ViscaPresetSendResult` enthalten jetzt `ResponseKind` + `ResponseSummary` sowie optional Error-Code/Description
+  - Timeout/no response/unknown sind fachlich unterscheidbar, ohne Exceptions nach außen zu werfen
+
+### Ergebnis
+- Der Sendepfad liefert neben Bytes/Hex jetzt auch fachlich lesbare Antwortinformationen.
+- ACK/Completion/Error/Unknown/None werden sauber unterschieden.
+- Keine UI-Anbindung, keine automatische Steuerung eingebaut.
+
+### Offene Punkte für den nächsten Block
+- `VISCA-Core 4`: ACK/Completion-Strategie pro Kameratyp (z. B. "Completion erwartet" vs. "ACK reicht") und ggf. Response-Parsing verfeinern.
+
 ## 2026-03-28 – Block 1b: CameraProfile und erster Remote-Commit
 ### Ausgangslage
 - Lokale Projektbasis vollständig und buildfähig, aber noch nie ins Remote-Repository committed

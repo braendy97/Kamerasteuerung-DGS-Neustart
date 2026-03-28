@@ -102,6 +102,13 @@
   - `ViscaTransportResult` (Success/Failure + Hex-Diagnose für Send/Response)
   - kombinierter Sendepfad `ViscaPresetCommandSender.SendPresetCommandAsync(...)` (Befehl bauen + senden + optionale Antwort)
 
+## [0.17.0] - 2026-03-28
+### Hinzugefügt
+- VISCA-Core Response-Parsing (ohne UI):
+  - kleine Response-Typen (`ViscaResponseKind`, `ViscaParsedResponse`, `ViscaResponseParseResult`)
+  - zentrale Auswertung roher Antwortbytes (`ViscaResponseParser`) für ACK/Completion/Error/Unknown/None
+- Sendepfad liefert neben Hex/Bytes auch semantische Antwortinfos (`ResponseKind`, `ResponseSummary`, Error-Code/Description)
+
 ## [0.3.0] - 2026-03-28
 ### Hinzugefügt
 - `Models/CameraProfile.cs` – Kamera-Konfigurationsmodell mit Name, Host, Port, PresetStart, PresetEnd, SupportsTracking, CameraType

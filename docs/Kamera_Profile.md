@@ -35,6 +35,13 @@ Für die spätere Kamerakommunikation gilt:
 - Aus einem (Model-)Kameraprofil + Preset-Aktion wird zentral ein VISCA-Befehl erzeugt.
 - TCP-Senden/Antwortlesen ist im Core als kleiner Transportservice vorbereitet (ohne UI-Anbindung).
 
+VISCA-Antworten werden im Core zusätzlich semantisch klassifiziert:
+- `None`: keine Antwort verfügbar (Antwortlesen deaktiviert / leer / Timeout beim Lesen)
+- `Ack`: ACK-Frame erkannt
+- `Completion`: Completion-Frame erkannt
+- `Error`: Error-Frame erkannt (inkl. Error-Code/kurzer Beschreibung, sofern vorhanden)
+- `Unknown`: Bytes vorhanden, aber kein bekannter Frame erkannt
+
 Transport-Defaults (aktuell):
 - ConnectTimeout: 2s
 - WriteTimeout: 2s
